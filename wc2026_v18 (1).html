@@ -1,0 +1,969 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;font-size:13px;}
+.topbar{background:#1a1a2e;color:#fff;padding:.7rem 1rem .5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.topbar-title{font-size:15px;font-weight:700;}
+.topbar-sub{font-size:10px;opacity:.6;margin-top:1px;}
+.btn-reset{height:26px;padding:0 10px;font-size:10px;border:1px solid rgba(255,255,255,.3);border-radius:5px;cursor:pointer;background:transparent;color:#fff;}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;overflow-x:auto;}
+.tab{padding:10px 14px;font-size:12px;border:none;border-bottom:2.5px solid transparent;cursor:pointer;color:#888;background:transparent;white-space:nowrap;font-weight:500;}
+.tab.active{color:#1a1a2e;border-bottom-color:#1a73e8;font-weight:700;}
+.view{display:none;padding:12px;}
+.view.active{display:block;}
+.grp-nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.grp-btn{min-width:32px;height:28px;padding:0 8px;border:1.5px solid #ddd;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:#666;background:#fff;}
+.grp-btn.active{color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+
+/* MATCH CARD */
+.match-card{background:#fff;border:1px solid #e0e8f5;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 8px rgba(26,115,232,.08);cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.match-card:active{transform:scale(.99);}
+.match-stadium{background:#e8f0fe;color:#1a3a6e;font-size:9px;font-weight:700;text-align:center;padding:5px 8px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #d0dcf5;}
+.match-body{display:flex;align-items:center;padding:14px 12px 10px;gap:8px;}
+.match-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;max-width:calc(50% - 44px);}
+.match-flag{width:64px;height:43px;border-radius:8px;overflow:hidden;border:2px solid #e0e0e0;background:#f5f5f5;flex-shrink:0;}
+.match-flag img{width:100%;height:100%;object-fit:cover;display:block;}
+.match-name{font-size:12px;font-weight:800;color:#1a1a2e;text-align:center;text-transform:uppercase;letter-spacing:.03em;line-height:1.2;word-break:break-word;width:100%;}
+.match-center{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;width:88px;}
+.vs-badge{background:#1a73e8;color:#fff;font-size:11px;font-weight:900;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.score-row{display:flex;align-items:center;gap:4px;}
+.score-inp{width:34px;height:30px;text-align:center;font-size:15px;font-weight:800;border:1.5px solid #c5d8ff;border-radius:7px;background:#f0f5ff;color:#1a1a2e;-moz-appearance:textfield;}
+.score-inp::-webkit-outer-spin-button,.score-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.score-inp:focus{outline:none;border-color:#1a73e8;background:#fff;}
+.score-sep{color:#aaa;font-size:14px;font-weight:700;}
+.match-footer{background:#f8faff;border-top:1px solid #e8f0fe;padding:7px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.match-dt{font-size:11px;font-weight:600;color:#445;display:flex;gap:12px;align-items:center;}
+.match-status{font-size:9px;padding:2px 8px;border-radius:999px;font-weight:600;}
+.status-done{background:#e6f9f0;color:#1a7a4a;border:1px solid #b2dfcb;}
+.status-pending{background:#f0f0f0;color:#999;border:1px solid #e0e0e0;}
+.match-winner .match-name{color:#1a73e8;}
+.match-winner .match-flag{border-color:#1a73e8;}
+
+/* STANDINGS */
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#888;margin-bottom:10px;}
+.ld{width:8px;height:8px;border-radius:2px;display:inline-block;}
+.stgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+.stcard{border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#fff;}
+.stcard-hd{padding:5px 8px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px;}
+.compact-table{width:100%;border-collapse:collapse;}
+.compact-table th{font-size:9px;color:#888;font-weight:600;padding:4px;text-align:center;border-bottom:1px solid #eee;background:#fafafa;}
+.compact-table th:nth-child(2){text-align:left;}
+.compact-table td{padding:4px;text-align:center;border-bottom:1px solid #f5f5f5;font-size:10px;}
+.compact-table td:nth-child(2){text-align:left;}
+.compact-table tr.q1 td{background:rgba(26,115,232,.05);}
+.compact-table tr.q3 td{background:rgba(52,168,83,.05);}
+.form-dots{display:flex;gap:2px;align-items:center;justify-content:center;}
+.fd{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.fd-w{background:#34a853;}.fd-d{background:#aaa;}.fd-l{background:#ea4335;}.fd-x{background:#e8e8e8;}
+.sttable{width:100%;border-collapse:collapse;background:#fff;}
+.sttable th{font-size:10px;color:#888;font-weight:600;padding:5px;text-align:center;border-bottom:1px solid #eee;background:#fafafa;}
+.sttable th:nth-child(2){text-align:left;}
+.sttable td{padding:5px;text-align:center;border-bottom:1px solid #f5f5f5;font-size:11px;}
+.sttable tr.q1 td{background:rgba(26,115,232,.05);}
+.sttable tr.q3 td{background:rgba(52,168,83,.05);}
+.pb{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:9px;font-weight:700;}
+.pb1,.pb2{background:#1a73e8;color:#fff;}.pb3{background:#34a853;color:#fff;}.pb4{background:#eee;color:#888;}
+.tc{display:flex;align-items:center;gap:5px;}
+.p3card{border:1.5px solid #34a853;border-radius:10px;overflow:hidden;margin-top:14px;}
+.p3hd{background:#34a853;padding:6px 10px;font-size:11px;font-weight:700;color:#fff;display:flex;justify-content:space-between;}
+.fi{display:inline-block;width:20px;height:13px;object-fit:cover;border-radius:2px;border:1px solid rgba(0,0,0,.08);flex-shrink:0;vertical-align:middle;background:#eee;}
+.fi-xs{width:13px;height:9px;border-radius:1px;}
+.fi-sm{width:18px;height:12px;}
+
+/* BRACKET */
+.bracket-outer{overflow-x:auto;padding:4px 0 16px;}
+.bracket-grid{display:flex;align-items:stretch;min-width:1020px;}
+.rd-col{display:flex;flex-direction:column;flex:1;min-width:115px;max-width:135px;}
+.rd-hd{font-size:9px;font-weight:700;color:#888;text-align:center;padding:0 3px 6px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.rd-matches{display:flex;flex-direction:column;justify-content:space-around;flex:1;}
+.brd-m{background:#fff;border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;margin:2px 3px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.brd-t{display:flex;align-items:center;gap:4px;padding:3px 5px;height:24px;}
+.brd-t:first-child{border-bottom:1px solid #f0f0f0;}
+.brd-t.win{font-weight:700;background:#e8f0fe;}
+.brd-sc{width:22px;height:18px;text-align:center;font-size:10px;font-weight:700;border:1px solid #ddd;border-radius:3px;background:#f8f9fa;color:#111;-moz-appearance:textfield;flex-shrink:0;}
+.brd-sc::-webkit-outer-spin-button,.brd-sc::-webkit-inner-spin-button{-webkit-appearance:none;}
+.brd-sc:focus{outline:none;border-color:#1a73e8;}
+.brd-ni{flex:1;height:18px;font-size:9px;border:1px solid #ddd;border-radius:3px;background:#f8f8f8;color:#333;padding:0 3px;min-width:0;}
+.brd-ni.af{background:#e8f0fe;border-color:#90b4f0;}
+.brd-ni.adv{background:#e6f9f0;border-color:#90d9b0;}
+.brd-ni:focus{outline:none;border-color:#1a73e8;}
+.center-col-brd{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;min-width:130px;flex:0 0 138px;}
+.champ-box{border:2px solid #ffd700;border-radius:12px;padding:12px 8px;text-align:center;background:linear-gradient(135deg,#fffde7,#fff8e1);width:100%;margin-top:6px;}
+.champ-inp{width:100%;text-align:center;height:24px;font-size:11px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#111;padding:0 4px;margin-top:4px;}
+.qpanel{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:12px;}
+.qprog{height:5px;border-radius:3px;background:#eee;margin:6px 0 10px;overflow:hidden;}
+.qbar{height:100%;border-radius:3px;background:#1a73e8;transition:width .4s;}
+.qchip{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:999px;border:1px solid #ddd;background:#fafafa;font-size:10px;color:#333;margin:2px;}
+.qchip.p3c{border-color:#34a853;background:rgba(52,168,83,.06);}
+.qchip.pd{opacity:.4;border-style:dashed;}
+.qbadge{font-size:8px;padding:1px 3px;border-radius:2px;font-weight:700;}
+.btn-fill{height:28px;padding:0 12px;font-size:11px;border:none;border-radius:6px;cursor:pointer;background:#1a73e8;color:#fff;font-weight:600;}
+.brd-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#666;margin-bottom:10px;}
+.bl-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:2px;}
+
+/* STATS */
+.stat-tabs2{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.stab{padding:5px 12px;font-size:11px;border:1px solid #ddd;border-radius:999px;cursor:pointer;color:#888;background:#fff;white-space:nowrap;}
+.stab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+.stat-cards2{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:7px;margin-bottom:14px;}
+.sc2{background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #e8e8e8;}
+.sv2{font-size:20px;font-weight:700;color:#111;}
+.sl2{font-size:9px;color:#888;margin-top:1px;}
+.ptable{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e8e8e8;}
+.ptable thead{background:#f8f9fa;}
+.ptable th{font-size:10px;color:#888;font-weight:600;padding:8px 10px;border-bottom:1px solid #eee;text-align:left;}
+.ptable th.c{text-align:center;}
+.ptable td{padding:8px 10px;border-bottom:1px solid #f5f5f5;font-size:11px;color:#111;vertical-align:middle;}
+.ptable td.c{text-align:center;}
+.ptable tr:last-child td{border-bottom:none;}
+.ptable tr.pre td{background:#fffde7;}
+.bp{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:3px;}
+.bp-pre{background:#ff9800;color:#fff;}.bp-user{background:#1a73e8;color:#fff;}
+.rtc{display:flex;align-items:center;gap:5px;}
+.val-c{font-size:14px;font-weight:700;color:#1a73e8;}
+.add-form{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-top:10px;}
+.add-form h4{font-size:11px;font-weight:700;color:#444;margin-bottom:8px;}
+.add-fields{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;}
+.add-fields input,.add-fields select{height:30px;font-size:11px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#111;padding:0 8px;}
+.btn-add{height:30px;padding:0 14px;font-size:11px;border:none;border-radius:5px;cursor:pointer;background:#1a73e8;color:#fff;font-weight:600;}
+.sec-title{font-size:12px;font-weight:700;color:#111;margin:12px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.source-tag{font-size:9px;padding:2px 8px;border-radius:4px;background:#f0f0f0;color:#888;font-weight:400;}
+.action-btns{display:flex;gap:3px;justify-content:center;}
+.btn-sm{width:22px;height:22px;font-size:11px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#f8f9fa;color:#666;padding:0;display:flex;align-items:center;justify-content:center;}
+
+/* ══ MODAL — FIXED untuk mobile ══
+   Tidak pakai display toggle + opacity transition yang bermasalah.
+   Pakai visibility + opacity saja, dengan pointer-events. */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:1000;
+  display:flex;          /* selalu flex, TIDAK diubah */
+  align-items:flex-end;  /* sheet dari bawah di mobile */
+  justify-content:center;
+  padding:0;
+  visibility:hidden;     /* gunakan visibility, bukan display */
+  opacity:0;
+  transition:opacity .25s, visibility .25s;
+  pointer-events:none;
+}
+.modal-overlay.open{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+}
+@media(min-width:501px){
+  .modal-overlay{align-items:center;padding:12px;}
+}
+.modal{
+  background:#fff;
+  width:100%;
+  max-width:520px;
+  max-height:92vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  box-shadow:0 -4px 30px rgba(0,0,0,.2);
+  border-radius:16px 16px 0 0;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+@media(min-width:501px){
+  .modal{border-radius:16px;transform:translateY(30px);}
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{
+  background:#1a1a2e;color:#fff;
+  padding:14px 16px;
+  border-radius:16px 16px 0 0;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:1;
+}
+.modal-title{font-size:13px;font-weight:700;}
+.modal-close{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.3);
+  background:transparent;color:#fff;cursor:pointer;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+/* drag handle for mobile sheet */
+.modal-handle{width:40px;height:4px;border-radius:2px;background:#ddd;margin:8px auto 0;}
+.modal-body{padding:16px;}
+
+/* Modal hero simetris */
+.modal-hero{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:14px 12px;background:#f8faff;border-radius:10px;border:1px solid #e0e8f5;margin-bottom:12px;}
+.modal-team{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.modal-flag{width:70px;height:47px;border-radius:8px;overflow:hidden;border:2px solid #e0e0e0;background:#f5f5f5;flex-shrink:0;}
+.modal-flag img{width:100%;height:100%;object-fit:cover;display:block;}
+.modal-team-name{font-size:11px;font-weight:800;color:#1a1a2e;text-align:center;text-transform:uppercase;letter-spacing:.03em;line-height:1.2;max-width:100px;}
+.modal-score-center{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+.modal-score-num{font-size:28px;font-weight:900;color:#1a1a2e;line-height:1;white-space:nowrap;}
+.modal-score-num span{color:#1a73e8;}
+.modal-meta{font-size:9px;color:#aaa;text-align:center;line-height:1.5;}
+
+.ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#1a73e8,#6c63ff);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.ai-btn:active{opacity:.85;}
+.ai-btn:disabled{opacity:.6;cursor:not-allowed;}
+.ai-btn .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.stat-section{margin-bottom:14px;}
+.stat-section-title{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.stat-section-title::after{content:'';flex:1;height:1px;background:#eee;}
+.stat-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.events-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.events-col{background:#f8f9fa;border-radius:8px;padding:8px;}
+.events-col-title{font-size:10px;font-weight:700;color:#fff;padding:3px 8px;border-radius:4px;margin-bottom:6px;text-align:center;}
+.event-item{display:flex;align-items:center;gap:5px;font-size:10px;padding:3px 0;border-bottom:1px solid #eee;}
+.event-item:last-child{border-bottom:none;}
+.event-min{font-size:9px;font-weight:700;color:#888;min-width:26px;}
+.event-player{flex:1;font-weight:500;}
+.lineups-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.lineup-col{background:#f8f9fa;border-radius:8px;padding:8px;}
+.lineup-title{font-size:10px;font-weight:700;text-align:center;padding:3px 8px;border-radius:4px;color:#fff;margin-bottom:6px;}
+.lineup-player{display:flex;align-items:center;gap:4px;font-size:9px;padding:2px 0;border-bottom:1px solid #f0f0f0;}
+.lineup-player:last-child{border-bottom:none;}
+.lineup-num{width:14px;font-size:8px;font-weight:700;color:#888;text-align:center;}
+.lineup-pos{font-size:8px;color:#bbb;}
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 16px;border-radius:6px;font-size:11px;z-index:2000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+@media(max-width:500px){
+  .match-flag{width:50px;height:34px;}
+  .match-name{font-size:10px;}
+  .stgrid{grid-template-columns:1fr 1fr;}
+  .events-grid,.lineups-wrap{grid-template-columns:1fr;}
+  .modal-flag{width:58px;height:39px;}
+  .modal-score-num{font-size:22px;}
+}
+@media(max-width:360px){.stgrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="topbar-title">🏆 FIFA World Cup 2026</div><div class="topbar-sub">Jadwal resmi WIB · Klik match untuk statistik AI ✨</div></div>
+  <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+    <select id="providerSel" onchange="switchProvider(this.value)"
+      style="height:24px;font-size:10px;border:1px solid rgba(255,255,255,.3);border-radius:4px;background:rgba(255,255,255,.15);color:#fff;padding:0 5px;cursor:pointer;">
+      <option value="openrouter">🆓 OpenRouter</option>
+      <option value="anthropic">◆ Anthropic</option>
+    </select>
+    <input id="apiKeyInp" type="password" placeholder="API key..."
+      style="height:24px;width:145px;font-size:10px;border:1px solid rgba(255,255,255,.3);border-radius:4px;background:rgba(255,255,255,.15);color:#fff;padding:0 7px;"
+      oninput="saveApiKey(this.value)" autocomplete="off">
+    <select id="orModelSel" style="height:24px;font-size:10px;border:1px solid rgba(255,255,255,.3);border-radius:4px;background:rgba(255,255,255,.15);color:#fff;padding:0 5px;cursor:pointer;display:none;">
+      <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+      <option value="deepseek/deepseek-r1:free">DeepSeek R1</option>
+      <option value="google/gemma-3-12b-it:free">Gemma 3 12B</option>
+      <option value="qwen/qwen3-8b:free">Qwen3 8B</option>
+    </select>
+    <span id="apiStatus" style="font-size:11px;">⚪</span>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+<div id="apiKeyBanner" style="background:#f3e8ff;border-bottom:1px solid #c084fc;padding:7px 14px;font-size:11px;color:#6b21a8;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+  <span id="bannerText">🆓 <strong>OpenRouter gratis!</strong> Daftar di <a href="https://openrouter.ai/keys" target="_blank" style="color:#6b21a8;font-weight:600;">openrouter.ai/keys</a> → Create Key → paste di input atas. Format: <code style="background:rgba(0,0,0,.08);padding:1px 4px;border-radius:3px;">sk-or-v1-...</code></span>
+  <button onclick="document.getElementById('apiKeyBanner').style.display='none'" style="border:none;background:none;cursor:pointer;font-size:15px;color:#6b21a8;">✕</button>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="sw('matches')">Pertandingan</button>
+  <button class="tab" onclick="sw('standings')">Klasemen</button>
+  <button class="tab" onclick="sw('knockout')">Babak Gugur</button>
+  <button class="tab" onclick="sw('stats')">Statistik</button>
+</div>
+<div id="view-matches" class="view active"><div class="grp-nav" id="matchNav"></div><div id="matchBody"></div></div>
+<div id="view-standings" class="view">
+  <div class="legend"><span><span class="ld" style="background:#1a73e8;"></span>Lolos (1–2)</span><span><span class="ld" style="background:#34a853;"></span>Kandidat P3</span><span style="display:flex;align-items:center;gap:3px;"><span class="fd fd-w"></span>M <span class="fd fd-d"></span>S <span class="fd fd-l"></span>K</span></div>
+  <div class="grp-nav" id="stNav"></div><div id="stBody"></div><div id="p3Section"></div>
+</div>
+<div id="view-knockout" class="view">
+  <div id="qualPanel"></div>
+  <div class="brd-legend"><span><span class="bl-dot" style="background:#e8f0fe;border:1px solid #90b4f0;"></span>Auto-fill grup</span><span><span class="bl-dot" style="background:#e6f9f0;border:1px solid #90d9b0;"></span>Auto-advance pemenang</span></div>
+  <div class="bracket-outer"><div class="bracket-grid" id="bracket"></div></div>
+</div>
+<div id="view-stats" class="view"><div id="statsBody"></div></div>
+
+<!-- MODAL — pakai class toggle, bukan display toggle -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Statistik Pertandingan</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Tutup">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── FLAGS ──
+function fiRect(cc){
+  if(!cc)return`<div class="match-flag" style="background:#e0e0e0;"></div>`;
+  const u=`https://flagcdn.com/w80/${cc.toLowerCase()}.png`,u2=`https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${cc.toLowerCase()}.svg`;
+  return`<div class="match-flag"><img src="${u}" alt="${cc}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='${u2}';this.onerror=null;"></div>`;
+}
+function fiModal(cc){
+  if(!cc)return`<div class="modal-flag" style="background:#e0e0e0;"></div>`;
+  const u=`https://flagcdn.com/w80/${cc.toLowerCase()}.png`,u2=`https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${cc.toLowerCase()}.svg`;
+  return`<div class="modal-flag"><img src="${u}" alt="${cc}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='${u2}';this.onerror=null;"></div>`;
+}
+function fi(cc,cls='fi'){
+  if(!cc)return`<span class="${cls}" style="background:#ddd;border-radius:2px;display:inline-block;"></span>`;
+  const u=`https://flagcdn.com/w40/${cc.toLowerCase()}.png`,u2=`https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${cc.toLowerCase()}.svg`;
+  return`<img src="${u}" class="${cls}" alt="${cc}" onerror="this.src='${u2}';this.onerror=null;">`;
+}
+
+// ── JADWAL (WIB, sumber: Al Jazeera/ESPN resmi) ──
+const SCHED={
+  A:[[`Kam 12 Jun`,`02.00`,`Mexico City Stadium`],[`Jum 13 Jun`,`09.00`,`Guadalajara Stadium`],[`Kam 19 Jun`,`03.00`,`Guadalajara Stadium`],[`Jum 20 Jun`,`08.00`,`Los Angeles Stadium`],[`Kam 26 Jun`,`02.00`,`Mexico City Stadium`],[`Kam 26 Jun`,`02.00`,`Monterrey Stadium`]],
+  B:[[`Sab 13 Jun`,`02.00`,`Toronto Stadium`],[`Ming 14 Jun`,`02.00`,`San Francisco Stadium`],[`Jum 20 Jun`,`05.00`,`BC Place, Vancouver`],[`Sab 21 Jun`,`08.00`,`Los Angeles Stadium`],[`Jum 27 Jun`,`05.00`,`BC Place, Vancouver`],[`Jum 27 Jun`,`05.00`,`Seattle Stadium`]],
+  C:[[`Ming 15 Jun`,`05.00`,`NJ Stadium`],[`Ming 15 Jun`,`08.00`,`Boston Stadium`],[`Sab 21 Jun`,`05.00`,`Boston Stadium`],[`Ming 22 Jun`,`07.30`,`Philadelphia Stadium`],[`Jum 27 Jun`,`05.00`,`Miami Stadium`],[`Jum 27 Jun`,`05.00`,`Atlanta Stadium`]],
+  D:[[`Sab 13 Jun`,`08.00`,`Los Angeles Stadium`],[`Ming 15 Jun`,`11.00`,`BC Place, Vancouver`],[`Sab 21 Jun`,`02.00`,`Seattle Stadium`],[`Ming 22 Jun`,`10.00`,`San Francisco Stadium`],[`Jum 27 Jun`,`–`,`TBD`],[`Jum 27 Jun`,`–`,`TBD`]],
+  E:[[`Ming 15 Jun`,`00.00`,`Houston Stadium`],[`Ming 15 Jun`,`06.00`,`Philadelphia Stadium`],[`Sen 23 Jun`,`02.00`,`Toronto Stadium`],[`Sen 23 Jun`,`07.00`,`Kansas City Stadium`],[`Jum 27 Jun`,`03.00`,`NJ Stadium`],[`Jum 27 Jun`,`03.00`,`Philadelphia Stadium`]],
+  F:[[`Ming 15 Jun`,`03.00`,`Dallas Stadium`],[`Sen 16 Jun`,`09.00`,`Monterrey Stadium`],[`Sen 23 Jun`,`00.00`,`Houston Stadium`],[`Sen 23 Jun`,`11.00`,`Monterrey Stadium`],[`Jum 27 Jun`,`06.00`,`Dallas Stadium`],[`Jum 27 Jun`,`06.00`,`Kansas City Stadium`]],
+  G:[[`Sel 17 Jun`,`02.00`,`Seattle Stadium`],[`Sel 17 Jun`,`08.00`,`Los Angeles Stadium`],[`Sen 23 Jun`,`02.00`,`Los Angeles Stadium`],[`Sen 23 Jun`,`08.00`,`BC Place, Vancouver`],[`Sab 28 Jun`,`10.00`,`Seattle Stadium`],[`Sab 28 Jun`,`10.00`,`BC Place, Vancouver`]],
+  H:[[`Sel 16 Jun`,`23.00`,`Atlanta Stadium`],[`Rab 18 Jun`,`05.00`,`Miami Stadium`],[`Sel 23 Jun`,`23.00`,`Atlanta Stadium`],[`Rab 25 Jun`,`05.00`,`Miami Stadium`],[`Sab 28 Jun`,`07.00`,`Houston Stadium`],[`Sab 28 Jun`,`07.00`,`Guadalajara Stadium`]],
+  I:[[`Sel 17 Jun`,`02.00`,`NJ Stadium`],[`Sel 17 Jun`,`05.00`,`Boston Stadium`],[`Sel 24 Jun`,`04.00`,`Philadelphia Stadium`],[`Sel 24 Jun`,`07.00`,`NJ Stadium`],[`Sab 28 Jun`,`02.00`,`Boston Stadium`],[`Sab 28 Jun`,`02.00`,`Toronto Stadium`]],
+  J:[[`Rab 18 Jun`,`08.00`,`Kansas City Stadium`],[`Rab 18 Jun`,`11.00`,`San Francisco Stadium`],[`Sel 24 Jun`,`00.00`,`Dallas Stadium`],[`Sel 24 Jun`,`10.00`,`San Francisco Stadium`],[`Ming 29 Jun`,`–`,`TBD`],[`Ming 29 Jun`,`–`,`TBD`]],
+  K:[[`Rab 18 Jun`,`00.00`,`Houston Stadium`],[`Rab 18 Jun`,`09.00`,`Mexico City Stadium`],[`Rab 25 Jun`,`00.00`,`Houston Stadium`],[`Rab 25 Jun`,`09.00`,`Guadalajara Stadium`],[`Ming 29 Jun`,`–`,`TBD`],[`Ming 29 Jun`,`–`,`TBD`]],
+  L:[[`Rab 18 Jun`,`03.00`,`Dallas Stadium`],[`Rab 18 Jun`,`06.00`,`Toronto Stadium`],[`Rab 25 Jun`,`03.00`,`Boston Stadium`],[`Rab 25 Jun`,`06.00`,`Toronto Stadium`],[`Ming 29 Jun`,`04.00`,`NJ Stadium`],[`Ming 29 Jun`,`04.00`,`TBD`]],
+};
+
+const GROUPS=[
+  {id:'A',color:'#1a73e8',teams:[{n:'Meksiko',cc:'mx'},{n:'Afrika Selatan',cc:'za'},{n:'Korea Selatan',cc:'kr'},{n:'Rep. Ceko',cc:'cz'}]},
+  {id:'B',color:'#e8711a',teams:[{n:'Kanada',cc:'ca'},{n:'Bosnia-Herzegovina',cc:'ba'},{n:'Qatar',cc:'qa'},{n:'Swiss',cc:'ch'}]},
+  {id:'C',color:'#34a853',teams:[{n:'Brasil',cc:'br'},{n:'Maroko',cc:'ma'},{n:'Haiti',cc:'ht'},{n:'Skotlandia',cc:'gb-sct'}]},
+  {id:'D',color:'#ea4335',teams:[{n:'Amerika Serikat',cc:'us'},{n:'Paraguay',cc:'py'},{n:'Australia',cc:'au'},{n:'Turki',cc:'tr'}]},
+  {id:'E',color:'#8b5cf6',teams:[{n:'Jerman',cc:'de'},{n:'Curacao',cc:'cw'},{n:'Pantai Gading',cc:'ci'},{n:'Ekuador',cc:'ec'}]},
+  {id:'F',color:'#0891b2',teams:[{n:'Belanda',cc:'nl'},{n:'Jepang',cc:'jp'},{n:'Swedia',cc:'se'},{n:'Tunisia',cc:'tn'}]},
+  {id:'G',color:'#be185d',teams:[{n:'Belgia',cc:'be'},{n:'Mesir',cc:'eg'},{n:'Iran',cc:'ir'},{n:'Selandia Baru',cc:'nz'}]},
+  {id:'H',color:'#b45309',teams:[{n:'Spanyol',cc:'es'},{n:'Tanjung Verde',cc:'cv'},{n:'Arab Saudi',cc:'sa'},{n:'Uruguay',cc:'uy'}]},
+  {id:'I',color:'#065f46',teams:[{n:'Prancis',cc:'fr'},{n:'Senegal',cc:'sn'},{n:'Irak',cc:'iq'},{n:'Norwegia',cc:'no'}]},
+  {id:'J',color:'#1e3a5f',teams:[{n:'Argentina',cc:'ar'},{n:'Aljazair',cc:'dz'},{n:'Austria',cc:'at'},{n:'Yordania',cc:'jo'}]},
+  {id:'K',color:'#7c3aed',teams:[{n:'Portugal',cc:'pt'},{n:'Kongo DR',cc:'cd'},{n:'Uzbekistan',cc:'uz'},{n:'Kolombia',cc:'co'}]},
+  {id:'L',color:'#be123c',teams:[{n:'Inggris',cc:'gb-eng'},{n:'Kroasia',cc:'hr'},{n:'Ghana',cc:'gh'},{n:'Panama',cc:'pa'}]},
+];
+const ALL_TEAMS=GROUPS.flatMap(g=>g.teams);
+const MU=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
+const gm=id=>{const t=GROUPS.find(g=>g.id===id).teams;return MU.map((p,i)=>({h:t[p[0]],a:t[p[1]],sch:SCHED[id][i]}));};
+const TM={};GROUPS.forEach(g=>g.teams.forEach(t=>{TM[t.n.toLowerCase()]=t.cc;t.n.split(' ').forEach(w=>{if(w.length>3)TM[w.toLowerCase()]=t.cc;});}));
+const gCC=s=>{if(!s)return'';const k=s.toLowerCase();if(TM[k])return TM[k];const f=Object.keys(TM).find(k2=>k.includes(k2));return f?TM[f]:'';};
+
+const STAT_TYPES=[{id:'scorer',label:'⚽ Top Skor',col:'Gol'},{id:'assist',label:'🎯 Top Assist',col:'Assist'},{id:'motm',label:'🌟 Man of Match',col:'MoM'},{id:'save',label:'🧤 Top Saves',col:'Saves'},{id:'clean',label:'🧱 Clean Sheet',col:'CS'},{id:'yellow',label:'🟨 Kartu Kuning',col:'KK'},{id:'red',label:'🟥 Kartu Merah',col:'KM'}];
+const SQUADS = {
+  "Meksiko": ["Raul Rangel", "Guillermo Ochoa", "Carlos Acevedo", "Jorge Sanchez", "Israel Reyes", "Cesar Montes", "Johan Vasquez", "Jesus Gallardo", "Mateo Chavez", "Edson Alvarez", "Erik Lira", "Orbelin Pineda", "Alvaro Fidalgo", "Brian Gutierrez", "Luis Romo", "Obed Vargas", "Gilberto Mora", "Luis Chavez", "Roberto Alvarado", "Cesar Huerta", "Alexis Vega", "Julian Quinones", "Guillermo Martinez", "Armando Gonzalez", "Santiago Gimenez", "Raul Jimenez"],
+  "Afrika Selatan": ["Ronwen Williams", "Ricardo Goss", "Sipho Chaine", "Aubrey Modiba", "Khuliso Mudau", "Khulumani Ndamane", "Kamogelo Sebelebele", "Nkosinathi Sibisi", "Bradley Cross", "Samukele Kabini", "Olwethu Makhanya", "Thabang Matuludi", "Mbekezeli Mbokazi", "Ime Okon", "Oswin Appollis", "Thalente Mbatha", "Relebohile Mofokeng", "Jayden Adams", "Teboho Mokoena", "Themba Zwane", "Sphephelo Sithole", "Evidence Makgopa", "Tshepang Moremi", "Lyle Foster", "Thapelo Maseko", "Iqraam Rayners"],
+  "Korea Selatan": ["Song Bumkeun", "Jo Hyeonwoo", "Kim Seung-gyu", "Jens Castrop", "Lee Hanbeom", "Park Jinseob", "Lee Kihyuk", "Kim Minjae", "Kim Moonhwan", "Kim Taehyeon", "Lee Taeseok", "Seol Youngwoo", "Cho Wije", "Lee Donggyeong", "Hwang Heechan", "Yang Hyunjun", "Hwang Inbeom", "Lee Jaesung", "Kim Jingyu", "Eom Jisung", "Bae Junho", "Lee Kangin", "Paik Seungho", "Cho Guesung", "Son Heungmin", "Oh Hyeongyu"],
+  "Rep. Ceko": ["Lukas Hornicek", "Matej Kovar", "Jindrich Stanek", "Vladimir Coufal", "David Doudera", "Tomas Holes", "Robin Hranac", "Stepan Chaloupek", "David Jurasek", "Ladislav Krejci", "Jaroslav Zeleny", "David Zima", "Lukas Cerv", "Vladimir Darida", "Lukas Provod", "Michal Sadilek", "Hugo Sochurek", "Alexandr Sojka", "Tomas Soucek", "Pavel Sulc", "Denis Visinsky", "Adam Hlozek", "Tomas Chory", "Mojmir Chytil", "Jan Kuchta", "Patrik Schick"],
+  "Kanada": ["Dayne St Clair", "Maxime Crepeau", "Owen Goodman", "Alistair Johnston", "Derek Cornelius", "Richie Laryea", "Niko Sigur", "Joel Waterman", "Luc de Fougerolles", "Moise Bombito", "Alphonso Davies", "Alfie Jones", "Stephen Eustaquio", "Ismael Kone", "Tajon Buchanan", "Mathieu Choiniere", "Ali Ahmed", "Nathan Saliba", "Liam Millar", "Jacob Shaffelburg", "Jonathan Osorio", "Jonathan David", "Cyle Larin", "Tani Oluwaseyi", "Promise David"],
+  "Bosnia-Herzegovina": ["Nikola Vasilj", "Martin Zlomislic", "Osman Hadzikic", "Sead Kolasinac", "Amar Dedic", "Nihad Mujakic", "Nikola Katic", "Tarik Muharemovic", "Stjepan Radeljic", "Dennis Hadzikadunic", "Nidal Celik", "Amir Hadziahmetovic", "Ivan Sunjic", "Ivan Basic", "Dzenis Burnic", "Ermin Mahmic", "Benjamin Tahirovic", "Amar Memic", "Armin Gigovic", "Kerim Alajbegovic", "Esmir Bajraktarevic", "Ermedin Demirovic", "Jovo Lukic", "Samed Bazdar", "Haris Tabakovic", "Edin Dzeko"],
+  "Qatar": ["Salah Zakaria", "Meshaal Barsham", "Mahmoud Abunada", "Boualem Khoukhi", "Pedro Miguel", "Sultan Al Brake", "Al Hashmi Al Hussain", "Ayoub Al Alawi", "Issa Laye", "Lucas Mendes", "Homam Al Amin", "Ahmed Fathi", "Jassim Gaber", "Assim Madibo", "Abdulaziz Hatem", "Karim Boudiaf", "Mohammed Mannai", "Almoez Ali", "Akram Afif", "Tahsin Mohammed", "Edmilson Junior", "Ahmed Al-Janehi", "Ahmed Alaa", "Hassan Al Haydos", "Mohammed Muntari", "Yusuf Abdurisag"],
+  "Swiss": ["Marvin Keller", "Gregor Kobel", "Yvon Mvogo", "Manuel Akanji", "Aurele Amenda", "Eray Comert", "Nico Elvedi", "Luca Jaquez", "Miro Muheim", "Ricardo Rodriguez", "Silvan Widmer", "Michel Aebischer", "Christian Fassnacht", "Remo Freuler", "Ardon Jashari", "Fabian Rieder", "Djibril Sow", "Cedric Itten", "Granit Xhaka", "Denis Zakaria", "Ruben Vargas", "Zeki Amdouni", "Breel Embolo", "Dan Ndoye", "Noah Okafor", "Johan Manzambi"],
+  "Brasil": ["Alisson", "Ederson", "Weverton", "Alex Sandro", "Bremer", "Danilo", "Douglas Santos", "Gabriel Magalhaes", "Ibanez", "Leo Pereira", "Marquinhos", "Wesley", "Bruno Guimaraes", "Casemiro", "Danilo Santos", "Fabinho", "Lucas Paqueta", "Endrick", "Gabriel Martinelli", "Igor Thiago", "Luiz Henrique", "Matheus Cunha", "Neymar Jr", "Raphinha", "Rayan", "Vinicius Jr"],
+  "Maroko": ["Yassine Bounou", "Munir El Kajoui", "Ahmed Reda Tagnaouti", "Noussair Mazraoui", "Anas Salah-Eddine", "Youssef Bellammari", "Achraf Hakimi", "Zakaria El Ouahdi", "Nayef Aguerd", "Chadi Riad", "Redouane Halhal", "Issa Diop", "Samir El Mourabet", "Ayoub Bouaddi", "Neil El Aynaoui", "Sofyan Amrabat", "Azzedine Ounahi", "Bilal El Khannouss", "Ismael Saibari", "Abdesamad Ezzalzouli", "Chemsdine Talbi", "Soufiane Rahimi", "Ayoub El Kaabi", "Brahim Diaz", "Yassine Gessim", "Ayoube Amaimouni-Echghouyab"],
+  "Haiti": ["Josue Duverger", "Alexandre Pierre", "Johny Placide", "Ricardo Ade", "Carlens Arcus", "Hannes Delcroix", "Jean-Kevin Duverne", "Martin Experience", "Duke Lacroix", "Wilguens Paugain", "Keeto Thermoncy", "Carl Fred Sainte", "Jean-Ricner Bellegarde", "Leverton Pierre", "Danley Jean Jacques", "Woodensky Pierre", "Dominique Simon", "Josue Casimir", "Louicius Deedson", "Derrick Etienne Jr.", "Yassin Fortune", "Wilson Isidor", "Lenny Joseph", "Duckens Nazon", "Frantzdy Pierrot", "Ruben Providence"],
+  "Skotlandia": ["Craig Gordon", "Angus Gunn", "Liam Kelly", "Grant Hanley", "Jack Hendry", "Aaron Hickey", "Dom Hyam", "Scott McKenna", "Nathan Patterson", "Anthony Ralston", "Andy Robertson", "John Souttar", "Kieran Tierney", "Ryan Christie", "Findlay Curtis", "Lewis Ferguson", "Tyler Fletcher", "Ben Gannon-Doak", "John McGinn", "Kenny McLean", "Scott McTominay", "Che Adams", "Lyndon Dykes", "George Hirst", "Lawrence Shankland", "Ross Stewart"],
+  "Argentina": ["Emiliano Martinez", "Geronimo Rulli", "Juan Musso", "Leonardo Balerdi", "Gonzalo Montiel", "Nicolas Tagliafico", "Lisandro Martinez", "Cristian Romero", "Nicolas Otamendi", "Facundo Medina", "Nahuel Molina", "Leandro Paredes", "Rodrigo De Paul", "Valentin Barco", "Giovani Lo Celso", "Exequiel Palacios", "Alexis Mac Allister", "Enzo Fernandez", "Julian Alvarez", "Lionel Messi", "Nicolas Gonzalez", "Thiago Almada", "Giuliano Simeone", "Nicolas Paz", "Jose Manuel Lopez", "Lautaro Martinez"],
+  "Amerika Serikat": ["Chris Brady", "Matt Freese", "Matt Turner", "Max Arfsten", "Sergino Dest", "Alex Freeman", "Mark McKenzie", "Tim Ream", "Chris Richards", "Antonee Robinson", "Miles Robinson", "Joe Scally", "Auston Trusty", "Tyler Adams", "Sebastian Berhalter", "Weston McKennie", "Cristian Roldan", "Brenden Aaronson", "Christian Pulisic", "Gio Reyna", "Malik Tillman", "Tim Weah", "Alejandro Zendejas", "Folarin Balogun", "Ricardo Pepi", "Haji Wright"],
+  "Prancis": ["Mike Maignan", "Robin Risser", "Brice Samba", "Lucas Digne", "Malo Gusto", "Lucas Hernandez", "Theo Hernandez", "Ibrahima Konate", "Maxence Lacroix", "Jules Kounde", "William Saliba", "Dayot Upamecano", "N'Golo Kante", "Manu Kone", "Adrien Rabiot", "Aurelien Tchouameni", "Warren Zaire-Emery", "Maghnes Akliouche", "Bradley Barcola", "Rayan Cherki", "Ousmane Dembele", "Desire Doue", "Michael Olise", "Kylian Mbappe", "Jean-Philippe Mateta", "Marcus Thuram"],
+  "Spanyol": ["Unai Simon", "David Raya", "Joan Garcia", "Marc Cucurella", "Pau Cubarsi", "Aymeric Laporte", "Alejandro Grimaldo", "Pedro Porro", "Eric Garcia", "Marcos Llorente", "Marc Pubill", "Gavi", "Rodri", "Pedri", "Martin Zubimendi", "Fabian Ruiz", "Alex Baena", "Mikel Merino", "Lamine Yamal", "Nico Williams", "Dani Olmo", "Ferran Torres", "Mikel Oyarzabal", "Yeremy Pino", "Borja Iglesias", "Victor Munoz"],
+  "Jerman": ["Manuel Neuer", "Oliver Baumann", "Alexander Nuebel", "Nico Schlotterbeck", "David Raum", "Nathaniel Brown", "Jonathan Tah", "Waldemar Anton", "Joshua Kimmich", "Malick Thiaw", "Antonio Rudiger", "Pascal Gross", "Leon Goretzka", "Felix Nmecha", "Jamal Musiala", "Nadiem Amiri", "Jamie Leweling", "Lennart Karl", "Florian Wirtz", "Leroy Sane", "Aleksandar Pavlovic", "Angelo Stiller", "Kai Havertz", "Nick Woltemade", "Deniz Undav", "Maximilian Beier"],
+  "Inggris": ["Jordan Pickford", "Dean Henderson", "James Trafford", "Reece James", "Ezri Konsa", "Jarell Quansah", "John Stones", "Marc Guehi", "Dan Burn", "Nico O'Reilly", "Djed Spence", "Tino Livramento", "Declan Rice", "Elliot Anderson", "Kobbie Mainoo", "Jordan Henderson", "Morgan Rogers", "Jude Bellingham", "Eberechi Eze", "Harry Kane", "Ivan Toney", "Ollie Watkins", "Bukayo Saka", "Marcus Rashford", "Anthony Gordon", "Noni Madueke"],
+  "Portugal": ["Diogo Costa", "Jose Sa", "Rui Silva", "Tomas Araujo", "Joao Cancelo", "Diogo Dalot", "Ruben Dias", "Goncalo Inacio", "Nuno Mendes", "Matheus Nunes", "Nelson Semedo", "Renato Veiga", "Samuel Costa", "Bruno Fernandes", "Joao Neves", "Ruben Neves", "Bernardo Silva", "Vitinha", "Francisco Conceicao", "Joao Felix", "Goncalo Guedes", "Rafael Leao", "Pedro Neto", "Goncalo Ramos", "Cristiano Ronaldo", "Francisco Trincao"],
+  "Belgia": ["Thibaut Courtois", "Senne Lammens", "Mike Penders", "Timothy Castagne", "Zeno Debast", "Maxim De Cuyper", "Koni De Winter", "Brandon Mechele", "Thomas Meunier", "Nathan Ngoy", "Joaquin Seys", "Arthur Theate", "Kevin De Bruyne", "Amadou Onana", "Nicolas Raskin", "Youri Tielemans", "Hans Vanaken", "Axel Witsel", "Charles De Ketelaere", "Jeremy Doku", "Matias Fernandez-Pardo", "Romelu Lukaku", "Dodi Lukebakio", "Diego Moreira", "Alexis Saelemaekers", "Leandro Trossard"],
+  "Kroasia": ["Dominik Livakovic", "Dominik Kotarski", "Ivor Pandur", "Josko Gvardiol", "Duje Caleta-Car", "Josip Sutalo", "Josip Stanisic", "Marin Pongracic", "Martin Erlic", "Luka Vuskovic", "Luka Modric", "Mateo Kovacic", "Mario Pasalic", "Nikola Vlasic", "Luka Sucic", "Martin Baturina", "Kristijan Jakic", "Petar Sucic", "Nikola Moro", "Toni Fruk", "Ivan Perisic", "Andrej Kramaric", "Ante Budimir", "Marco Pasalic", "Petar Musa", "Igor Matanovic"],
+  "Belanda": ["Mark Flekken", "Robin Roefs", "Bart Verbruggen", "Nathan Ake", "Virgil van Dijk", "Denzel Dumfries", "Jan Paul van Hecke", "Jurrien Timber", "Jorrel Hato", "Micky van de Ven", "Ryan Gravenberch", "Frenkie de Jong", "Teun Koopmeiners", "Tijjani Reijnders", "Marten de Roon", "Guus Til", "Quinten Timber", "Mats Wieffer", "Brian Brobbey", "Memphis Depay", "Cody Gakpo", "Noa Lang", "Donyell Malen", "Crysencio Summerville", "Wout Weghorst", "Justin Kluivert"],
+  "Jepang": ["Tomoki Hayakawa", "Keisuke Osako", "Zion Suzuki", "Ko Itakura", "Hiroki Ito", "Yuto Nagatomo", "Ayumu Seko", "Yukinari Sugawara", "Junnosuke Suzuki", "Shogo Taniguchi", "Takehiro Tomiyasu", "Tsuyoshi Watanabe", "Ritsu Doan", "Wataru Endo", "Junya Ito", "Daichi Kamada", "Takefusa Kubo", "Keito Nakamura", "Kaishu Sano", "Ao Tanaka", "Keisuke Goto", "Daizen Maeda", "Koki Ogawa", "Kento Shiogai", "Yuito Suzuki", "Ayase Ueda"],
+  "Iran": ["Alireza Beiranvand", "Seyed Hossein Hosseini", "Payam Niazmand", "Danial Eiri", "Ehsan Hajsafi", "Saleh Hardani", "Hossein Kanaani", "Shoja Khalilzadeh", "Milad Mohammadi", "Ali Nemati", "Ramin Rezaeian", "Rouzbeh Cheshmi", "Saeid Ezatolahi", "Mehdi Ghaedi", "Saman Ghoddos", "Mohammad Ghorbani", "Alireza Jahanbakhsh", "Mohammad Mohebi", "Amir Mohammad Razzaghinia", "Mehdi Torabi", "Aria Yousefi", "Ali Alipour", "Dennis Dargahi", "Amirhossein Hosseinzadeh", "Mehdi Taremi", "Shahriar Moghanlou"],
+  "Australia": ["Patrick Beach", "Paul Izzo", "Mathew Ryan", "Aziz Behich", "Jordan Bos", "Cameron Burgess", "Alessandro Circati", "Milos Degenek", "Jason Geria", "Lucas Herrington", "Jacob Italiano", "Harry Souttar", "Kai Trewin", "Cameron Devlin", "Ajdin Hrustic", "Jackson Irvine", "Connor Metcalfe", "Aiden O'Neill", "Paul Okon-Engstler", "Nestory Irankunda", "Mathew Leckie", "Awer Mabil", "Mohamed Toure", "Nishan Velupillay", "Cristian Volpato", "Tete Yengi"],
+  "Norwegia": ["Orjan Haskjold Nyland", "Egil Selvik", "Sander Tangvik", "Kristoffer Vassbakk Ajer", "Fredrik Bjorkan", "Henrik Falchener", "Sondre Langas", "Torbjorn Heggem", "Marcus Holmgren Pedersen", "Julian Ryerson", "David Moller Wolfe", "Leo Ostigard", "Thelonious Aasgaard", "Fredrik Aursnes", "Patrick Berg", "Sander Berge", "Oscar Bobb", "Jens Petter Hauge", "Antonio Nusa", "Andreas Schjelderup", "Morten Thorsby", "Kristian Thorstvedt", "Martin Odegaard", "Erling Haaland", "Alexander Sorloth", "Jorgen Strand Larsen"],
+  "Uruguay": ["Sergio Rochet", "Fernando Muslera", "Santiago Mele", "Guillermo Varela", "Ronald Araujo", "Jose Maria Gimenez", "Santiago Bueno", "Sebastian Caceres", "Mathias Olivera", "Joaquin Piquerez", "Matias Vina", "Maximiliano Araujo", "Giorgian de Arrascaeta", "Rodrigo Bentancur", "Agustin Canobbio", "Nicolas de la Cruz", "Emiliano Martinez", "Facundo Pellistri", "Brian Rodriguez", "Juan Manuel Sanabria", "Manuel Ugarte", "Federico Valverde", "Rodrigo Zalazar", "Rodrigo Aguirre", "Federico Vinas", "Darwin Nunez"],
+  "Kolombia": ["Camilo Vargas", "Alvaro Montero", "David Ospina", "Davinson Sanchez", "Jhon Lucumi", "Yerry Mina", "Willer Ditta", "Daniel Munoz", "Santiago Arias", "Johan Mojica", "Deiver Machado", "Richard Rios", "Jefferson Lerma", "Kevin Castano", "Juan Camilo Portilla", "Gustavo Puerta", "Jhon Arias", "Jorge Carrascal", "Juan Fernando Quintero", "James Rodriguez", "Jaminton Campaz", "Juan Camilo Hernandez", "Luis Diaz", "Luis Suarez", "Carlos Gomez", "Jhon Cordoba"],
+  "Ekuador": ["Hernan Galindez", "Moises Ramirez", "Gonzalo Valle", "Piero Hincapie", "Willian Pacho", "Pervis Estupinan", "Felix Torres", "Joel Ordonez", "Jackson Porozo", "Angelo Preciado", "Yaimar Medina", "Moises Caicedo", "Alan Franco", "Kendry Paez", "Gonzalo Plata", "Pedro Vite", "Jordy Alcivar", "Denil Castillo", "John Yeboah", "Nilson Angulo", "Alan Minda", "Enner Valencia", "Kevin Rodriguez", "Jordy Caicedo", "Anthony Valencia", "Jeremy Arevalo"],
+  "Pantai Gading": ["Yahia Fofana", "Mohamed Kone", "Alban Lafont", "Emmanuel Agbadou", "Christopher Operi", "Ousmane Diomande", "Guela Doue", "Ghislain Konan", "Odilon Kossounou", "Wilfried Singo", "Evan Ndicka", "Seko Fofana", "Parfait Guiagon", "Christ Inao Oulai", "Franck Kessie", "Ibrahim Sangare", "Jean Michael Seri", "Simon Adingra", "Ange-Yoan Bonny", "Amad Diallo", "Oumar Diakite", "Yan Diomande", "Evann Guessand", "Nicolas Pepe", "Bazoumana Toure", "Elye Wahi"],
+  "Senegal": ["Edouard Mendy", "Mory Diaw", "Yehvann Diouf", "Krepin Diatta", "Antoine Mendy", "Kalidou Koulibaly", "El Hadji Malick Diouf", "Mamadou Sarr", "Moussa Niakhate", "Abdoulaye Seck", "Ismail Jakobs", "Idrissa Gana Gueye", "Pape Gueye", "Lamine Camara", "Habib Diarra", "Pathe Ciss", "Pape Matar Sarr", "Bara Sapoko Ndiaye", "Sadio Mane", "Ismaila Sarr", "Iliman Ndiaye", "Assane Diao", "Ibrahim Mbaye", "Nicolas Jackson", "Bamba Dieng", "Cherif Ndiaye"],
+  "Turki": ["Altay Bayindir", "Mert Gunok", "Ugurcan Cakir", "Abdulkerim Bardakci", "Caglar Soyuncu", "Eren Elmali", "Ferdi Kadioglu", "Merih Demiral", "Mert Muldur", "Ozan Kabak", "Samet Akaydin", "Zeki Celik", "Hakan Calhanoglu", "Ismail Yuksek", "Kaan Ayhan", "Orkun Kokcu", "Salih Ozcan", "Arda Guler", "Baris Alper Yilmaz", "Can Uzun", "Deniz Gul", "Irfan Can Kahveci", "Kenan Yildiz", "Kerem Akturkoglu", "Oguz Aydin", "Yunus Akgun"],
+  "Austria": ["Patrick Pentz", "Alexander Schlager", "Florian Wiegele", "David Affengruber", "David Alaba", "Kevin Danso", "Marco Friedl", "Philipp Lienhart", "Phillipp Mwene", "Stefan Posch", "Alexander Prass", "Michael Svoboda", "Christoph Baumgartner", "Carney Chukwuemeka", "Florian Grillitsch", "Konrad Laimer", "Marcel Sabitzer", "Xaver Schlager", "Romano Schmid", "Alessandro Schopf", "Nicolas Seiwald", "Paul Wanner", "Patrick Wimmer", "Marko Arnautovic", "Michael Gregoritsch", "Sasa Kalajdzic"],
+  "Ghana": ["Joseph Anang", "Benjamin Asare", "Lawrence Ati-Zigi", "Jonas Adjetey", "Derrick Luckassen", "Gideon Mensah", "Abdul Mumin", "Jerome Opoku", "Kojo Oppong Preprah", "Baba Abdul Rahman", "Alidu Seidu", "Marvin Senaya", "Augustine Boakye", "Abdul Fatawu Issahaku", "Elisha Owusu", "Thomas Partey", "Kwasi Sibo", "Kamal Deen Sulemana", "Caleb Yirenkyi", "Prince Kwabena Adu", "Jordan Ayew", "Christopher Bonsu Baah", "Ernest Nuamah", "Antoine Semenyo", "Brandon Thomas-Asante", "Inaki Williams"],
+  "Arab Saudi": ["Nawaf Al Aqidi", "Mohamed Al Owais", "Ahmed Alkassar", "Saud Abdulhamid", "Jehad Thakri", "Abdulelah Al Amri", "Hassan Tambakti", "Ali Lajami", "Hassan Kadesh", "Moteb Al Harbi", "Nawaf Boushal", "Ali Majrashi", "Mohammed Abu Alshamat", "Ziyad Al Johani", "Nasser Al Dawsari", "Mohamed Kanno", "Abdullah Al Khaibari", "Alaa Al Hejji", "Musab Al Juwayr", "Sultan Mandash", "Ayman Yahya", "Khalid Al Ghannam", "Salem Al Dawsari", "Abdullah Al Hamdan", "Feras Al Brikan", "Saleh Al Shehri"],
+  "Irak": ["Fahad Talib", "Jalal Hassan", "Ahmed Basil", "Hussein Ali", "Manaf Younis", "Zaid Tahseen", "Rebin Sulaka", "Akam Hashem", "Merchas Doski", "Ahmed Yahya", "Zaid Ismail", "Frans Putros", "Mustafa Saadoon", "Amir Al Ammari", "Kevin Yakob", "Zidane Iqbal", "Aimar Sher", "Ibrahim Bayesh", "Ahmed Qasim", "Youssef Amyn", "Marko Farji", "Ali Jassim", "Ali Al Hamadi", "Ali Yousef", "Aymen Hussein", "Mohanad Ali"],
+  "Uzbekistan": ["Botirali Ergashev", "Abduvohid Nematov", "Utkir Yusupov", "Abdukodir Khusanov", "Khojiakbar Alijonov", "Rustamjon Ashurmatov", "Farrukh Sayfiev", "Sherzod Nasrullaev", "Umarbek Eshmuradov", "Avazbek Ulmasaliev", "Jakhongir Urozov", "Bekhruz Karimov", "Abdulla Abdullaev", "Akmal Mozgovoy", "Otabek Shukurov", "Jamshid Iskanderov", "Odiljon Hamrobekov", "Jaloliddin Masharipov", "Azizbek Ganiev", "Sherzod Esanov", "Abbosbek Fayzullaev", "Azizbek Amonov", "Eldor Shomurodov", "Igor Sergeev", "Oston Urunov", "Dostonbek Hamdamov"],
+  "Jordania": ["Yazid Abulaila", "Noor Bani Attiah", "Abdallah Al Fakhouri", "Mohammad Abu Hashish", "Abdullah Nasib", "Hussam Abu Dhahab", "Yazan Al Arab", "Mohammad Abu Alnadi", "Salem Obaid", "Saed Al Rosan", "Ehsan Haddad", "Anas Badawi", "Amer Jamous", "Noor Al Rawabdeh", "Rajaei Ayed", "Ibrahim Sadeh", "Mohannad Abu Taha", "Nizar Al Rashdan", "Mohammad Al Dawoud", "Mahmoud Mardahi", "Mohammad Abu Zraiq", "Ali Olwan", "Mousa Al Tamari", "Odeh Fakhoury", "Ibrahim Sabra", "Ali Azaizeh"],
+  "Selandia Baru": ["Max Crocombe", "Alex Paulsen", "Michael Woud", "Tyler Bindon", "Michael Boxall", "Liberato Cacace", "Francis de Vries", "Callan Elliot", "Tim Payne", "Nando Pijnaker", "Tommy Smith", "Finn Surman", "Lachlan Bayliss", "Joe Bell", "Matt Garbett", "Eli Just", "Callum McCowatt", "Ben Old", "Alex Rufer", "Marko Stamenic", "Sarpreet Singh", "Ryan Thomas", "Kosta Barbarouses", "Jesse Randall", "Ben Waine", "Chris Wood"],
+  "Nigeria": ["Stanley Nwabali", "Chidera Ejike", "John Noble", "Calvin Bassey", "Ola Aina", "Semi Ajayi", "Bright Osayi-Samuel", "Chukwuemeka Eze", "William Troost-Ekong", "Zaidu Sanusi", "Nathaniel Ngofa", "Wilfred Ndidi", "Frank Onyeka", "Alex Iwobi", "Fisayo Dele-Bashiru", "Raphael Onyedika", "Kelechi Iheanacho", "Victor Osimhen", "Moses Simon", "Samuel Chukwueze", "Ademola Lookman", "Chisom Chibueze", "Onuachu Paul", "Taiwo Awoniyi"],
+  "Aljazair": ["Oussama Benbot", "Melvin Masstil", "Luca Zidane", "Achraf Abada", "Rayan Ait Nouri", "Zinedine Belaid", "Rafik Belghali", "Ramy Bensebaini", "Samir Chergui", "Jaouen Hadjam", "Aissa Mandi", "Mohamed Amine Tougai", "Houssem Aouar", "Nabil Bentaleb", "Hicham Boudaoui", "Fares Chaibi", "Ibrahim Maza", "Yassine Titraoui", "Ramiz Zerrouki", "Mohamed Amine Amoura", "Nadir Benbouali", "Adil Boulbina", "Fares Ghedjemis", "Amine Gouiri", "Riyad Mahrez", "Anis Hadj Moussa"],
+  "Mesir": ["Mohamed El Shenawy", "Mostafa Shobeir", "El Mahdy Soliman", "Mohamed Alaa", "Mohamed Abdelmonem", "Mohamed Hany", "Yasser Ibrahim", "Hossam Abdelmaguid", "Ahmed Fattouh", "Tarek Alaa", "Rami Rabia", "Karim Hafez", "Marwan Attia", "Ahmed Sayed Zizo", "Mahmoud Hassan Trezeguet", "Emam Ashour", "Mostafa Abdel Raouf", "Mohannad Lasheen", "Haitham Hassan", "Mahmoud Saber", "Ibrahim Adel", "Nabil Emad", "Hamdi Fathi", "Mohamed Salah", "Omar Marmoush", "Hamza Abdel Karim"],
+  "Tunisia": ["Sabri Ben Hessen", "Abdelmouhib Chamakh", "Aymen Dahman", "Ali Abdi", "Adem Arous", "Mohamed Amine Ben Hamida", "Dylan Bronn", "Raed Chikhaoui", "Moutaz Neffati", "Omar Rekik", "Montassar Talbi", "Yan Valery", "Mortadha Ben Ouanes", "Anis Ben Slimane", "Ismael Gharbi", "Rani Khedira", "Mohamed Hadj Mahmoud", "Hannibal Mejbri", "Ellyes Skhiri", "Elias Achouri", "Khalil Ayari", "Firas Chaouat", "Rayan Elloumi", "Hazem Mastouri", "Elias Saad", "Sebastian Tounekti"],
+  "Kamerun": ["Andre Onana", "Devis Epassy", "Simon Omossola", "Nouhou Tolo", "Jean-Charles Castelletto", "Enzo Tchato", "Oliver Mbaizo", "Michael Ngadeu-Ngadjui", "Duplexe Tchamba", "Jerome Ngom Mbekeli", "Samuel Oum Gouet", "Pierre Kunde", "Martin Hongla", "Gael Ondoua", "Andre-Frank Zambo Anguissa", "Olivier Ntcham", "Steve Mounié", "Karl Toko-Ekambi", "Christian Bassogog", "Bryan Mbeumo", "Maxim Choupo-Moting", "Samuel Gouet", "Clinton Njie", "Leandro Trossard"],
+  "Paraguay": ["Orlando Gill", "Roberto Fernandez", "Gaston Olveira", "Juan Caceres", "Gustavo Velazquez", "Gustavo Gomez", "Junior Alonso", "Jose Canale", "Omar Alderete", "Alexandro Maidana", "Fabian Balbuena", "Diego Gomez", "Mauricio Magalhaes", "Damian Bobadilla", "Braian Ojeda", "Andres Cubas", "Matias Galarza", "Alejandro Gamarra", "Gustavo Caballero", "Ramon Sosa", "Alex Arce", "Isidro Pitta", "Gabriel Avalos", "Miguel Almiron", "Julio Enciso", "Antonio Sanabria"],
+  "Panama": ["Orlando Mosquera", "Luis Mejia", "Cesar Samudio", "Cesar Blackman", "Jorge Gutierrez", "Amir Murillo", "Fidel Escobar", "Andres Andrade", "Edgardo Farina", "Jose Cordoba", "Eric Davis", "Jiovany Ramos", "Roderick Miller", "Anibal Godoy", "Adalberto Carrasquilla", "Carlos Harvey", "Cristian Martinez", "Jose Luis Rodriguez", "Cesar Yanis", "Yoel Barcenas", "Alberto Quintero", "Azarias Londono", "Ismael Diaz", "Cecilio Waterman", "Jose Fajardo", "Tomas Rodriguez"],
+  "Tanjung Verde": ["CJ dos Santos", "Marcio Rosa", "Vozinha", "Sidny Cabral", "Diney Borges", "Logan Costa", "Roberto Lopes", "Steven Moreira", "Wagner Pina", "Kelvin Pires", "Joao Paulo Fernandes", "Ianique Stopira Tavares", "Telmo Arcanjo", "Deroy Duarte", "Laros Duarte", "Jamiro Monteiro", "Kevin Pina", "Yannick Semedo", "Gilson Benchimol", "Jovane Cabral", "Dailon Livramento", "Ryan Mendes", "Nuno da Costa", "Garry Rodrigues", "Willy Semedo", "Helio Varela"],
+  "Curacao": ["Tyrick Bodack", "Trevor Doornbusch", "Eloy Room", "Riechedly Bazoer", "Joshua Brenet", "Roshon van Eijma", "Sherel Floranus", "Deveron Fonville", "Jurien Gaari", "Armando Obispo", "Shurandy Sambo", "Juninho Bacuna", "Leandro Bacuna", "Livano Comenencia", "Kevin Felida", "Arjany Martha", "Tyrese Noslin", "Godfried Roemeratoe", "Jeremy Antonisse", "Tahith Chong", "Kenji Gorre", "Sontje Hansen", "Gervane Kastaneer", "Brandley Kuwas", "Jurgen Locadia", "Jearl Margaritha"],
+  "Kongo DR": ["Matthieu Epolo", "Timothy Fayulu", "Lionel Mpasi", "Dylan Batubinsika", "Gedeon Kalulu", "Steve Kapuadi", "Joris Kayembe", "Arthur Masuaku", "Chancel Mbemba", "Axel Tuanzebe", "Aaron Wan-Bissaka", "Brian Cipenga", "Meshack Elia", "Gael Kakuta", "Edo Kayembe", "Nathanael Mbuku", "Samuel Moutoussamy", "Ngal'ayel Mukau", "Charles Pickel", "Noah Sadiki", "Aaron Tshibola", "Cedric Bakambu", "Simon Banza", "Fiston Mayele", "Yoane Wissa", "Theo Bongonda"],
+  "Swedia": ["Viktor Johansson", "Gustaf Lagerbielke", "Kristoffer Nordfeldt", "Jacob Zetterstrom", "Hjalmar Ekdal", "Gabriel Gudmundsson", "Isak Hien", "Victor Lindelof", "Eric Smith", "Carl Starfelt", "Daniel Svensson", "Yasin Ayari", "Lucas Bergvall", "Jesper Karlstrom", "Benjamin Nygren", "Ken Sema", "Elliot Stroud", "Mattias Svanberg", "Besfort Zeneli", "Taha Ali", "Alexander Bernhardsson", "Anthony Elanga", "Viktor Gyokeres", "Alexander Isak", "Gustaf Nilsson"],
+};
+
+const PREFILL={scorer:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Harry Kane',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Erling Haaland',team:'Norwegia',cc:'no',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Cristiano Ronaldo',team:'Portugal',cc:'pt',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Vinícius Jr.',team:'Brasil',cc:'br',val:0,pre:true},{name:'Kai Havertz',team:'Jerman',cc:'de',val:0,pre:true}],assist:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Bukayo Saka',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Bruno Fernandes',team:'Portugal',cc:'pt',val:0,pre:true}],motm:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true}],save:[{name:'Emiliano Martínez',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Unai Simón',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Alisson Becker',team:'Brasil',cc:'br',val:0,pre:true},{name:'Mike Maignan',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Jordan Pickford',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Thibaut Courtois',team:'Belgia',cc:'be',val:0,pre:true}],clean:[{name:'Emiliano Martínez',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Unai Simón',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Alisson Becker',team:'Brasil',cc:'br',val:0,pre:true}],yellow:[],red:[]};
+
+let ST={ag:'A',asg:'ALL',ast:'scorer',scores:{},ko:{},koN:{},players:{},matchStats:{}};
+try{const d=localStorage.getItem('wc26v15');if(d){const p=JSON.parse(d);Object.assign(ST,p);}}catch(e){}
+STAT_TYPES.forEach(t=>{if(!ST.players[t.id])ST.players[t.id]=[...(PREFILL[t.id]||[])];});
+if(!ST.matchStats)ST.matchStats={};
+const save=()=>{try{localStorage.setItem('wc26v15',JSON.stringify(ST));}catch(e){}};
+const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);};
+
+// ── CALC ──
+function calcSt(gid){
+  const grp=GROUPS.find(g=>g.id===gid);
+  const ts=grp.teams.map(t=>({...t,mp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,form:[]}));
+  const tm2={};grp.teams.forEach(t=>{tm2[t.n]=[];});
+  gm(gid).forEach((m,i)=>{
+    const sc=ST.scores[`${gid}_${i}`];
+    if(sc&&sc.h!==''&&sc.a!==''&&sc.h!=null){
+      const hi=grp.teams.findIndex(t=>t.n===m.h.n),ai=grp.teams.findIndex(t=>t.n===m.a.n);
+      const hg=parseInt(sc.h)||0,ag=parseInt(sc.a)||0;
+      ts[hi].mp++;ts[hi].gf+=hg;ts[hi].ga+=ag;ts[hi].gd+=hg-ag;
+      ts[ai].mp++;ts[ai].gf+=ag;ts[ai].ga+=hg;ts[ai].gd+=ag-hg;
+      if(hg>ag){ts[hi].w++;ts[hi].pts+=3;ts[ai].l++;tm2[m.h.n].push('W');tm2[m.a.n].push('L');}
+      else if(hg<ag){ts[ai].w++;ts[ai].pts+=3;ts[hi].l++;tm2[m.h.n].push('L');tm2[m.a.n].push('W');}
+      else{ts[hi].d++;ts[hi].pts++;ts[ai].d++;ts[ai].pts++;tm2[m.h.n].push('D');tm2[m.a.n].push('D');}
+    }
+  });
+  ts.forEach(t=>{t.form=tm2[t.n]||[];});
+  return ts.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+}
+const grpDone=gid=>MU.every((_,i)=>{const sc=ST.scores[`${gid}_${i}`];return sc&&sc.h!==''&&sc.a!=='';});
+const doneCount=()=>GROUPS.filter(g=>grpDone(g.id)).length;
+function getQual(){const auto=[],p3=[];GROUPS.forEach(g=>{if(!grpDone(g.id))return;const st=calcSt(g.id);auto.push({...st[0],pos:1,grp:g.id,grpColor:g.color});auto.push({...st[1],pos:2,grp:g.id,grpColor:g.color});p3.push({...st[2],pos:3,grp:g.id,grpColor:g.color});});p3.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);return{auto,p3,best8:p3.slice(0,8)};}
+
+const BRACKET_TREE=[['r16',0,'r32',0,1],['r16',1,'r32',2,3],['r16',2,'r32',4,5],['r16',3,'r32',6,7],['r16',4,'r32',8,9],['r16',5,'r32',10,11],['r16',6,'r32',12,13],['r16',7,'r32',14,15],['qf',0,'r16',0,1],['qf',1,'r16',2,3],['qf',2,'r16',4,5],['qf',3,'r16',6,7],['sf',0,'qf',0,1],['sf',1,'qf',2,3],['final',0,'sf',0,1]];
+function getMatchWinner(rnd,idx){const k=`${rnd}_${idx}`;const nm=ST.koN[k]||{};const sc=ST.ko[k]||{};if(nm.hn&&nm.an&&sc.h!==''&&sc.a!==''){const h=parseInt(sc.h)||0,a=parseInt(sc.a)||0;if(h>a)return{n:nm.hn,cc:nm.hcc||gCC(nm.hn)};if(a>h)return{n:nm.an,cc:nm.acc||gCC(nm.an)};}return null;}
+function propagateWinners(){BRACKET_TREE.forEach(([pR,pI,fR,fA,fB])=>{const wA=getMatchWinner(fR,fA),wB=getMatchWinner(fR,fB);const k=`${pR}_${pI}`;if(!ST.koN[k])ST.koN[k]={hn:'',hcc:'',an:'',acc:'',_auto:true};if(ST.koN[k]._auto!==false){if(wA){ST.koN[k].hn=wA.n;ST.koN[k].hcc=wA.cc;}if(wB){ST.koN[k].an=wB.n;ST.koN[k].acc=wB.cc;}}});const fw=getMatchWinner('final',0);if(fw&&(!ST.ko.champion||ST.ko.champion._auto!==false))ST.ko.champion={name:fw.n,cc:fw.cc,_auto:true};}
+function computeKoN(){const{auto,best8}=getQual();if(!auto.length&&!best8.length)return;const q=[...auto.filter(t=>t.pos===1),...auto.filter(t=>t.pos===2),...best8];for(let i=0;i<16;i++){const k=`r32_${i}`,t1=q[i]||null,t2=q[i+16]||null;if(!ST.koN[k]||ST.koN[k]._auto!==false)ST.koN[k]={hn:t1?t1.n:'',hcc:t1?t1.cc:'',an:t2?t2.n:'',acc:t2?t2.cc:'',_auto:true};}propagateWinners();save();}
+
+function formDots(form,n=5){const f=form.slice(-n);const d=[];for(let i=0;i<n;i++){const r=f[i];d.push(`<span class="fd ${r==='W'?'fd-w':r==='D'?'fd-d':r==='L'?'fd-l':'fd-x'}"></span>`);}return`<div class="form-dots">${d.join('')}</div>`;}
+function stHTMLCompact(gid){const st=calcSt(gid);let h=`<table class="compact-table"><thead><tr><th>#</th><th>Tim</th><th>M</th><th>SG</th><th>Pts</th><th>Forma</th></tr></thead><tbody>`;st.forEach((t,i)=>{const cls=i<2?'q1':i===2?'q3':'';const pc=i<2?'pb'+(i+1):i===2?'pb3':'pb4';h+=`<tr class="${cls}"><td><span class="pb ${pc}">${i+1}</span></td><td><div class="tc">${fi(t.cc,'fi fi-xs')}<span style="font-size:9px;">${t.n.split(' ')[0]}</span></div></td><td>${t.mp}</td><td style="font-weight:700;color:${t.gd>0?'#1a7a4a':t.gd<0?'#c62828':'#888'};">${t.gd>0?'+':''}${t.gd}</td><td><strong>${t.pts}</strong></td><td>${formDots(t.form)}</td></tr>`;});return h+`</tbody></table>`;}
+function stHTMLFull(gid){const st=calcSt(gid);let h=`<table class="sttable"><thead><tr><th>#</th><th style="text-align:left;min-width:100px;">Tim</th><th>M</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>SG</th><th>Pts</th><th>Forma</th></tr></thead><tbody>`;st.forEach((t,i)=>{const cls=i<2?'q1':i===2?'q3':'';const pc=i<2?'pb'+(i+1):i===2?'pb3':'pb4';h+=`<tr class="${cls}"><td><span class="pb ${pc}">${i+1}</span></td><td><div class="tc">${fi(t.cc)}<span>${t.n}</span></div></td><td>${t.mp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td style="font-weight:700;color:${t.gd>0?'#1a7a4a':t.gd<0?'#c62828':'inherit'};">${t.gd>0?'+':''}${t.gd}</td><td><strong>${t.pts}</strong></td><td>${formDots(t.form)}</td></tr>`;});return h+`</tbody></table>`;}
+
+// ── MATCHES ──
+function renderMatchNav(){
+  const allBtn=`<button class="grp-btn ${ST.ag==='ALL'?'active':''}" style="${ST.ag==='ALL'?'background:#1a1a2e;color:#fff;border-color:#1a1a2e;':''}" onclick="setAG('ALL')">📅 Semua</button>`;
+  const grpBtns=GROUPS.map(g=>`<button class="grp-btn ${g.id===ST.ag?'active':''}" style="${g.id===ST.ag?'background:'+g.color+';color:#fff;border-color:'+g.color+';':''}" onclick="setAG('${g.id}')">${g.id}</button>`).join('');
+  document.getElementById('matchNav').innerHTML=allBtn+grpBtns;
+}
+function renderMatches(){
+  if(ST.ag==='ALL'){ renderAllMatches(); return; }
+  const g=GROUPS.find(x=>x.id===ST.ag),ms=gm(ST.ag),done=grpDone(ST.ag);
+  let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${g.color};display:inline-block;"></span><span style="font-size:12px;font-weight:700;color:#333;">Grup ${g.id}</span>${done?`<span style="font-size:9px;background:#34a853;color:#fff;padding:2px 8px;border-radius:999px;">✓ Selesai</span>`:''}</div>`;
+  ms.forEach((m,i)=>{
+    const key=`${ST.ag}_${i}`,sc=ST.scores[key]||{h:'',a:''};
+    const d2=sc.h!==''&&sc.a!=='';const hg=d2?parseInt(sc.h)||0:null,ag2=d2?parseInt(sc.a)||0:null;
+    const hw=d2&&hg>ag2,aw=d2&&ag2>hg;const [d,t,s]=m.sch;const hasStat=!!ST.matchStats[key];
+    h+=`<div class="match-card" onclick="openModal('${ST.ag}',${i})">
+      <div class="match-stadium">🏟 ${s}${hasStat?' · <span style="color:#1a73e8;">📊 Stats</span>':''}</div>
+      <div class="match-body">
+        <div class="match-team ${hw?'match-winner':''}">${fiRect(m.h.cc)}<div class="match-name">${m.h.n}</div></div>
+        <div class="match-center">
+          <div class="vs-badge">${d2?`<span style="font-size:12px;font-weight:900;">${hg}–${ag2}</span>`:'VS'}</div>
+          <div class="score-row" onclick="event.stopPropagation()">
+            <input class="score-inp" type="number" min="0" max="99" value="${sc.h}" placeholder="–" onchange="setSc('${key}','h',this.value)" onclick="event.stopPropagation()">
+            <span class="score-sep">:</span>
+            <input class="score-inp" type="number" min="0" max="99" value="${sc.a}" placeholder="–" onchange="setSc('${key}','a',this.value)" onclick="event.stopPropagation()">
+          </div>
+        </div>
+        <div class="match-team ${aw?'match-winner':''}">${fiRect(m.a.cc)}<div class="match-name">${m.a.n}</div></div>
+      </div>
+      <div class="match-footer">
+        <div class="match-dt"><span>📅 ${d}</span><span>⏰ ${t} WIB</span></div>
+        <span class="match-status ${d2?'status-done':'status-pending'}">${d2?`✓ Selesai ${hg}–${ag2} · Klik untuk stats AI`:'Belum dimainkan'}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('matchBody').innerHTML=h;
+}
+function setSc(k,s,v){if(!ST.scores[k])ST.scores[k]={h:'',a:''};ST.scores[k][s]=v;if(ST.matchStats[k])delete ST.matchStats[k];save();renderMatches();computeKoN();}
+function setAG(id){ST.ag=id;save();renderMatchNav();renderMatches();}
+
+const DAY_ORDER={'Kam':4,'Jum':5,'Sab':6,'Ming':0,'Sen':1,'Sel':2,'Rab':3};
+function parseMatchDate(sch){
+  const parts=(sch[0]||'').split(' ');
+  const dateNum=parseInt(parts[1])||99;
+  const monthMap={Jan:1,Feb:2,Mar:3,Apr:4,Mei:5,Jun:6,Jul:7,Agu:8,Sep:9,Okt:10,Nov:11,Des:12};
+  const month=monthMap[parts[2]]||6;
+  const timeStr=(sch[1]||'99.99').replace('–','99.99');
+  const [h,m2]=(timeStr+'.00').split('.');
+  return new Date(2026,month-1,dateNum,parseInt(h)||0,parseInt(m2)||0);
+}
+
+function renderAllMatches(){
+  let allMatches=[];
+  GROUPS.forEach(g=>{
+    gm(g.id).forEach((m,i)=>{
+      allMatches.push({gid:g.id,idx:i,m,g,date:parseMatchDate(m.sch)});
+    });
+  });
+  allMatches.sort((a,b)=>a.date-b.date);
+  const byDate={};
+  allMatches.forEach(item=>{
+    const label=item.m.sch[0]||'TBD';
+    if(!byDate[label])byDate[label]=[];
+    byDate[label].push(item);
+  });
+  let h='';
+  Object.entries(byDate).forEach(([dateLabel,items])=>{
+    // Count done matches for this day
+    const doneToday=items.filter(({gid,idx})=>{const sc=ST.scores[`${gid}_${idx}`];return sc&&sc.h!==''&&sc.a!=='';}).length;
+    h+=`<div style="display:flex;align-items:center;gap:8px;margin:14px 0 8px;">
+      <div style="flex:1;height:1px;background:#e0e0e0;"></div>
+      <span style="font-size:11px;font-weight:700;color:#555;background:#e8edf5;padding:3px 12px;border-radius:999px;white-space:nowrap;">
+        📅 ${dateLabel} &nbsp;<span style="color:#aaa;font-weight:400;">${doneToday}/${items.length} selesai</span>
+      </span>
+      <div style="flex:1;height:1px;background:#e0e0e0;"></div>
+    </div>`;
+    items.forEach(({gid,idx,m,g})=>{
+      const key=`${gid}_${idx}`;
+      const sc=ST.scores[key]||{h:'',a:''};
+      const d2=sc.h!==''&&sc.a!=='';
+      const hg=d2?parseInt(sc.h)||0:null,ag2=d2?parseInt(sc.a)||0:null;
+      const hw=d2&&hg>ag2,aw=d2&&ag2>hg;
+      const [d,t,s]=m.sch;const hasStat=!!ST.matchStats[key];
+      h+=`<div class="match-card" onclick="openModal('${gid}',${idx})">
+        <div class="match-stadium" style="background:${g.color}18;">
+          <span style="color:${g.color};font-weight:800;font-size:9px;">GRUP ${gid}</span>
+          &nbsp;·&nbsp;🏟 ${s}${hasStat?'&nbsp;·&nbsp;<span style="color:#1a73e8;">📊 Stats</span>':''}
+        </div>
+        <div class="match-body">
+          <div class="match-team ${hw?'match-winner':''}">${fiRect(m.h.cc)}<div class="match-name">${m.h.n}</div></div>
+          <div class="match-center">
+            <div class="vs-badge" style="background:${g.color};">${d2?`<span style="font-size:12px;font-weight:900;">${hg}–${ag2}</span>`:'VS'}</div>
+            <div class="score-row" onclick="event.stopPropagation()">
+              <input class="score-inp" type="number" min="0" max="99" value="${sc.h}" placeholder="–" onchange="setSc('${key}','h',this.value)" onclick="event.stopPropagation()">
+              <span class="score-sep">–</span>
+              <input class="score-inp" type="number" min="0" max="99" value="${sc.a}" placeholder="–" onchange="setSc('${key}','a',this.value)" onclick="event.stopPropagation()">
+            </div>
+            <div style="font-size:9px;color:#aaa;">${t} WIB</div>
+          </div>
+          <div class="match-team ${aw?'match-winner':''}">${fiRect(m.a.cc)}<div class="match-name">${m.a.n}</div></div>
+        </div>
+        <div class="match-footer">
+          <div class="match-dt">
+            <span>${t} WIB</span>
+            <span class="${d2?'match-status status-done':'match-status status-pending'}">${d2?'✓ Selesai':'Belum dimainkan'}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById('matchBody').innerHTML=h;
+}
+
+// ── STANDINGS ──
+function renderStNav(){document.getElementById('stNav').innerHTML=[{id:'ALL',color:'#444'},...GROUPS].map(b=>`<button class="grp-btn ${b.id===ST.asg?'active':''}" style="width:auto;padding:0 9px;${b.id===ST.asg?'background:'+(b.color||'#444')+';color:#fff;border-color:'+(b.color||'#444')+';':''}" onclick="setASG('${b.id}')">${b.id==='ALL'?'Semua':b.id}</button>`).join('');}
+function renderStandings(){
+  if(ST.asg==='ALL'){document.getElementById('stBody').innerHTML=`<div class="stgrid">`+GROUPS.map(gr=>`<div class="stcard"><div class="stcard-hd" style="background:${gr.color};font-size:10px;">${gr.teams.map(t=>fi(t.cc,'fi fi-xs')).join('')}<span style="margin-left:3px;">Grup ${gr.id}</span>${grpDone(gr.id)?'<span style="margin-left:auto;font-size:8px;background:rgba(255,255,255,.25);padding:1px 4px;border-radius:3px;">✓</span>':''}</div>${stHTMLCompact(gr.id)}</div>`).join('')+`</div>`;}
+  else{const gr=GROUPS.find(x=>x.id===ST.asg);document.getElementById('stBody').innerHTML=`<div class="stcard"><div class="stcard-hd" style="background:${gr.color};">${gr.teams.map(t=>fi(t.cc,'fi fi-xs')).join('')}<span style="margin-left:4px;">Grup ${gr.id}</span>${grpDone(gr.id)?'<span style="margin-left:auto;font-size:8px;background:rgba(255,255,255,.25);padding:1px 5px;border-radius:3px;">✓</span>':''}</div>${stHTMLFull(gr.id)}</div>`;}
+  renderP3();
+}
+function renderP3(){const{p3}=getQual();if(!p3.length){document.getElementById('p3Section').innerHTML='';return;}let h=`<div class="p3card"><div class="p3hd"><span>🟢 Peringkat 3 Terbaik (${p3.length}/12)</span><span style="font-size:8px;">${p3.length===12?'✓ Final':'⚠ Sementara'}</span></div><table class="compact-table" style="background:#fff;"><thead><tr><th>#</th><th style="text-align:left;">Tim</th><th>Grp</th><th>M</th><th>SG</th><th>Pts</th><th>Forma</th><th>Status</th></tr></thead><tbody>`;p3.forEach((t,i)=>{const l=i<8;h+=`<tr style="${l?'background:rgba(52,168,83,.04)':''}"><td><span class="pb ${l?'pb3':'pb4'}">${i+1}</span></td><td><div class="tc">${fi(t.cc,'fi fi-xs')}<span style="font-size:10px;">${t.n}</span></div></td><td><span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${t.grpColor};color:#fff;">${t.grp}</span></td><td>${t.mp}</td><td style="font-weight:700;color:${t.gd>0?'#1a7a4a':t.gd<0?'#c62828':'#888'};">${t.gd>0?'+':''}${t.gd}</td><td><strong>${t.pts}</strong></td><td>${formDots(t.form)}</td><td><span style="font-size:9px;padding:1px 5px;border-radius:999px;background:${l?'#34a853':'#eee'};color:${l?'#fff':'#888'};">${l?'✓':'Gugur'}</span></td></tr>`;});h+=`</tbody></table></div>`;if(p3.length<12)h+=`<div style="font-size:10px;color:#b45309;margin-top:5px;">⚠️ Sementara — ${12-p3.length} grup belum selesai</div>`;document.getElementById('p3Section').innerHTML=h;}
+function setASG(id){ST.asg=id;renderStNav();renderStandings();}
+
+// ── KNOCKOUT ──
+function renderQualPanel(){const{auto,p3,best8}=getQual();const done=doneCount(),pct=Math.round(done/12*100),total=auto.length+best8.length;let h=`<div class="qpanel"><div style="font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">🎯 Kualifikasi <span style="font-size:10px;color:#888;font-weight:400;">${done}/12 grup selesai</span></div><div class="qprog"><div class="qbar" style="width:${pct}%"></div></div>`;if(!total){h+=`<div style="font-size:11px;color:#888;">Isi skor di tab Pertandingan untuk mengisi bracket otomatis.</div>`;}else{h+=`<div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">✅ Juara & Runner-Up (${auto.length}/24)</div><div style="margin-bottom:8px;">`;GROUPS.forEach(g=>{if(!grpDone(g.id)){h+=`<span class="qchip pd">${g.id}?</span>`.repeat(2);}else{const st=calcSt(g.id);[0,1].forEach(i=>h+=`<span class="qchip">${fi(st[i].cc,'fi fi-xs')}<span>${st[i].n}</span><span class="qbadge" style="background:${g.color};color:#fff;">${g.id}${i===0?'①':'②'}</span></span>`); }});h+=`</div><div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">🟢 Peringkat 3 (${best8.length}/8)</div><div>`;p3.forEach((t,i)=>{const l=i<8;h+=`<span class="qchip ${l?'p3c':''}">${fi(t.cc,'fi fi-xs')}<span>${t.n}</span><span class="qbadge" style="background:${l?'#34a853':'#eee'};color:${l?'#fff':'#888'};">${t.grp} ${t.pts}p</span></span>`;});h+=`</div>`;}const adv=Object.entries(ST.koN).filter(([k,v])=>v&&v.hn&&!k.startsWith('r32')).length;h+=`<div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;"><button class="btn-fill" onclick="doFill()">🔄 Isi/Perbarui dari Fase Grup</button>${total?`<span style="font-size:10px;color:#34a853;">✓ ${total} tim${adv?` · ${adv} advanced`:''}</span>`:''}</div><div style="font-size:10px;color:#888;margin-top:5px;">Pemenang otomatis naik ke babak berikutnya.</div></div>`;document.getElementById('qualPanel').innerHTML=h;}
+function doFill(){const{auto,best8}=getQual();const q=[...auto.filter(t=>t.pos===1),...auto.filter(t=>t.pos===2),...best8];for(let i=0;i<16;i++){const k=`r32_${i}`,t1=q[i]||null,t2=q[i+16]||null;ST.koN[k]={hn:t1?t1.n:'',hcc:t1?t1.cc:'',an:t2?t2.n:'',acc:t2?t2.cc:'',_auto:true};}propagateWinners();save();renderBracket();renderQualPanel();toast('✅ Bracket diperbarui!');}
+function brdMatch(rnd,idx){const k=`${rnd}_${idx}`,nm=ST.koN[k]||{},sc=ST.ko[k]||{};const hw=sc.h!==''&&sc.a!==''&&parseInt(sc.h)>parseInt(sc.a),aw=sc.h!==''&&sc.a!==''&&parseInt(sc.a)>parseInt(sc.h);const isAdv=rnd!=='r32'&&(!ST.koN[k]||ST.koN[k]._auto!==false);return`<div class="brd-m"><div class="brd-t ${hw?'win':''}">${nm.hcc?fi(nm.hcc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni ${rnd==='r32'&&nm.hn?'af':isAdv&&nm.hn?'adv':''}" value="${nm.hn||''}" placeholder="TBD" onchange="setKoN('${k}','hn',this.value)"><input class="brd-sc" type="number" value="${sc.h||''}" placeholder="-" onchange="setKoSc('${k}','h',this.value)"></div><div class="brd-t ${aw?'win':''}">${nm.acc?fi(nm.acc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni ${rnd==='r32'&&nm.an?'af':isAdv&&nm.an?'adv':''}" value="${nm.an||''}" placeholder="TBD" onchange="setKoN('${k}','an',this.value)"><input class="brd-sc" type="number" value="${sc.a||''}" placeholder="-" onchange="setKoSc('${k}','a',this.value)"></div></div>`;}
+function renderBracket(){computeKoN();const champ=ST.ko.champion||{};function makeCol(hd,m,n){return`<div class="rd-col" style="min-width:${n>=8?118:n>=4?106:n>=2?98:88}px;max-width:${n>=8?132:n>=4?120:108}px;flex:1;"><div class="rd-hd">${hd}</div><div class="rd-matches">${m}</div></div>`;}function cL(p){const h=p*2*42;return`<div style="width:14px;flex-shrink:0;position:relative;"><svg width="14" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 14 ${h}" preserveAspectRatio="none">${Array.from({length:p},(_,i)=>{const y1=i*2*42+21,y2=(i*2+1)*42+21,ym=(y1+y2)/2;return`<polyline points="0,${y1} 7,${y1} 7,${y2} 0,${y2}" fill="none" stroke="#b0bec5" stroke-width="1.2"/><line x1="7" y1="${ym}" x2="14" y2="${ym}" stroke="#b0bec5" stroke-width="1.2"/>`;}).join('')}</svg></div>`;}function cR(p){const h=p*2*42;return`<div style="width:14px;flex-shrink:0;position:relative;"><svg width="14" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 14 ${h}" preserveAspectRatio="none">${Array.from({length:p},(_,i)=>{const y1=i*2*42+21,y2=(i*2+1)*42+21,ym=(y1+y2)/2;return`<polyline points="14,${y1} 7,${y1} 7,${y2} 14,${y2}" fill="none" stroke="#b0bec5" stroke-width="1.2"/><line x1="7" y1="${ym}" x2="0" y2="${ym}" stroke="#b0bec5" stroke-width="1.2"/>`;}).join('')}</svg></div>`;}const center=`<div class="center-col-brd"><div class="rd-hd">🏆 Final</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;">${brdMatch('final',0)}<div class="champ-box">${champ.cc?`<img src="https://flagcdn.com/w80/${champ.cc.toLowerCase()}.png" style="width:50px;height:33px;object-fit:cover;border-radius:5px;border:1px solid #ddd;" alt="" onerror="this.style.display='none'">`:`<div style="font-size:28px;line-height:1;">🏆</div>`}<div style="font-size:10px;color:#888;font-weight:700;margin:5px 0 2px;">JUARA DUNIA</div><input class="champ-inp" value="${champ.name||''}" placeholder="Nama juara..." onchange="setChamp(this.value)"><div style="font-size:9px;color:#bbb;margin-top:3px;">19 Jul · NJ Stadium</div></div></div></div>`;document.getElementById('bracket').innerHTML=makeCol('32 Besar',Array.from({length:8},(_,i)=>brdMatch('r32',i)).join(''),8)+cL(4)+makeCol('16 Besar',Array.from({length:4},(_,i)=>brdMatch('r16',i)).join(''),4)+cL(2)+makeCol('Perempat Final',Array.from({length:2},(_,i)=>brdMatch('qf',i)).join(''),2)+cL(1)+makeCol('Semifinal',brdMatch('sf',0),1)+center+makeCol('Semifinal',brdMatch('sf',1),1)+cR(1)+makeCol('Perempat Final',Array.from({length:2},(_,i)=>brdMatch('qf',i+2)).join(''),2)+cR(2)+makeCol('16 Besar',Array.from({length:4},(_,i)=>brdMatch('r16',i+4)).join(''),4)+cR(4)+makeCol('32 Besar',Array.from({length:8},(_,i)=>brdMatch('r32',i+8)).join(''),8);}
+function setKoN(k,f,v){if(!ST.koN[k])ST.koN[k]={};ST.koN[k][f]=v;ST.koN[k]._auto=false;if(f==='hn'){const cc=gCC(v);if(cc)ST.koN[k].hcc=cc;}if(f==='an'){const cc=gCC(v);if(cc)ST.koN[k].acc=cc;}save();renderBracket();renderQualPanel();}
+function setKoSc(k,f,v){if(!ST.ko[k])ST.ko[k]={};ST.ko[k][f]=v;save();propagateWinners();renderBracket();}
+function setChamp(v){if(!ST.ko.champion)ST.ko.champion={};ST.ko.champion.name=v;ST.ko.champion._auto=false;const cc=gCC(v);if(cc)ST.ko.champion.cc=cc;save();renderBracket();}
+
+// ══════════════════
+// MODAL — FIXED BUG
+// Gunakan class .open, TIDAK mengubah display sama sekali
+// ══════════════════
+function openModal(gid,idx){
+  const ms=gm(gid);const m=ms[idx];
+  const key=`${gid}_${idx}`;const sc=ST.scores[key]||{h:'',a:''};
+  const done=sc.h!==''&&sc.a!=='';const hg=done?parseInt(sc.h)||0:null;const ag=done?parseInt(sc.a)||0:null;
+  document.getElementById('modalTitle').textContent=`${m.h.n} vs ${m.a.n}`;
+
+  const hero=`<div class="modal-hero">
+    <div class="modal-team">${fiModal(m.h.cc)}<div class="modal-team-name">${m.h.n}</div></div>
+    <div class="modal-score-center">
+      <div class="modal-score-num">${done?`<span>${hg}</span>&thinsp;–&thinsp;<span>${ag}</span>`:`<span style="font-size:13px;color:#aaa;">vs</span>`}</div>
+      <div class="modal-meta">${m.sch[0]}<br>${m.sch[1]} WIB<br>${m.sch[2]}</div>
+    </div>
+    <div class="modal-team">${fiModal(m.a.cc)}<div class="modal-team-name">${m.a.n}</div></div>
+  </div>`;
+
+  const cached=ST.matchStats[key];
+  let body=hero;
+  if(cached){body+=renderStatsHTML(cached,m,gid,idx,done,hg,ag);}
+  else if(done){body+=`<button class="ai-btn" id="aiBtnMain" onclick="generateAIStats('${gid}',${idx})"><span>✨</span> Generate Statistik dengan Claude AI</button><div style="font-size:10px;color:#888;text-align:center;margin-bottom:10px;">AI membuat statistik realistis berdasarkan skor & gaya bermain tim</div><div id="aiResult"></div>`;}
+  else{body+=`<div style="text-align:center;padding:20px;color:#aaa;font-size:12px;">⏳ Pertandingan belum dimainkan.<br>Isi skor dahulu untuk generate statistik AI.</div>`;}
+
+  document.getElementById('modalBody').innerHTML=body;
+
+  // ── KUNCI FIX: tambah class .open, jangan ubah display ──
+  const overlay=document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+
+  // Tap backdrop untuk tutup
+  overlay.ontouchstart=null;
+  overlay.onclick=function(e){if(e.target===overlay)closeModal();};
+}
+
+function closeModal(){
+  const overlay=document.getElementById('modalOverlay');
+  overlay.classList.remove('open');   // cukup hapus class .open
+  document.body.style.overflow='';
+  // TIDAK mengubah display — ini yang menyebabkan bug sebelumnya
+}
+
+function renderStatsHTML(data,m,gid,idx,done,hg,ag){
+  const hc='#1a73e8',ac='#ea4335';const hp=data.possession_h||50,ap=100-hp;
+  function sBar(vh,va,lbl){const tot=vh+va||1,pw=Math.round(vh/tot*100);return`<div class="stat-row"><div style="min-width:24px;text-align:right;font-size:12px;font-weight:700;">${vh}</div><div style="flex:1;height:6px;display:flex;border-radius:3px;overflow:hidden;margin:0 6px;"><div style="width:${pw}%;background:${hc};min-width:2px;"></div><div style="flex:1;background:${ac};min-width:2px;"></div></div><div style="min-width:90px;text-align:center;font-size:10px;color:#888;">${lbl}</div><div style="min-width:24px;font-size:12px;font-weight:700;">${va}</div></div>`;}
+  function evList(evs){if(!evs||!evs.length)return`<div style="font-size:10px;color:#bbb;text-align:center;padding:6px;">—</div>`;return evs.map(e=>`<div class="event-item"><span class="event-min">${e.min}'</span><span style="font-size:12px;">${e.icon||'⚽'}</span><div><div class="event-player">${e.player}</div>${e.detail?`<div style="font-size:9px;color:#aaa;">${e.detail}</div>`:''}</div></div>`).join('');}
+  return`<div class="stat-section"><div class="stat-section-title">📊 Statistik</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:11px;font-weight:700;">${hp}%</span><div style="flex:1;height:12px;display:flex;border-radius:6px;overflow:hidden;"><div style="width:${hp}%;background:${hc};"></div><div style="flex:1;background:${ac};"></div></div><span style="font-size:11px;font-weight:700;">${ap}%</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-bottom:8px;"><span>${m.h.n}</span><span>Penguasaan Bola</span><span>${m.a.n}</span></div>
+    ${sBar(data.shots_h||0,data.shots_a||0,'Tembakan')}${sBar(data.on_target_h||0,data.on_target_a||0,'On Target')}${sBar(data.corners_h||0,data.corners_a||0,'Sudut')}${sBar(data.fouls_h||0,data.fouls_a||0,'Pelanggaran')}${sBar(data.yellow_h||0,data.yellow_a||0,'Kartu Kuning')}${sBar(data.red_h||0,data.red_a||0,'Kartu Merah')}${sBar(data.passes_h||0,data.passes_a||0,'Operan')}${sBar(data.acc_h||0,data.acc_a||0,'Akurasi Operan %')}
+  </div>
+  <div class="stat-section"><div class="stat-section-title">⚽ Kejadian</div>
+    <div class="events-grid"><div class="events-col"><div class="events-col-title" style="background:${hc};">${m.h.n}</div>${evList(data.events_h)}</div><div class="events-col"><div class="events-col-title" style="background:${ac};">${m.a.n}</div>${evList(data.events_a)}</div></div>
+  </div>
+  <div class="stat-section"><div class="stat-section-title">👤 Susunan Pemain</div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;font-weight:700;margin-bottom:6px;"><span>${data.formation_h||'4-3-3'}</span><span>${data.formation_a||'4-3-3'}</span></div>
+    <div class="lineups-wrap"><div class="lineup-col"><div class="lineup-title" style="background:${hc};">${m.h.n}</div>${(data.lineup_h||[]).map(p=>`<div class="lineup-player"><span class="lineup-num">${p.num}</span><span style="flex:1;font-size:9px;">${p.name}</span><span class="lineup-pos">${p.pos}</span></div>`).join('')}</div><div class="lineup-col"><div class="lineup-title" style="background:${ac};">${m.a.n}</div>${(data.lineup_a||[]).map(p=>`<div class="lineup-player"><span class="lineup-num">${p.num}</span><span style="flex:1;font-size:9px;">${p.name}</span><span class="lineup-pos">${p.pos}</span></div>`).join('')}</div></div>
+  </div>
+  <div style="font-size:9px;color:#bbb;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #eee;">✨ Dihasilkan Claude AI · Simulasi realistis</div>`;
+}
+
+// ── API KEY MANAGEMENT ──
+function getProvider(){ return localStorage.getItem('wc26_provider')||'openrouter'; }
+function saveApiKey(v){
+  try{ localStorage.setItem('wc26_apikey_'+getProvider(), v.trim()); }catch(e){}
+  updateApiStatus(v.trim());
+}
+function loadApiKey(){
+  try{ return localStorage.getItem('wc26_apikey_'+getProvider())||''; }catch(e){ return ''; }
+}
+function updateApiStatus(key){
+  const el=document.getElementById('apiStatus');
+  if(!el)return;
+  el.textContent = key ? '🟢' : '⚪';
+  const banner=document.getElementById('apiKeyBanner');
+  if(banner) banner.style.display = key ? 'none' : 'flex';
+}
+function switchProvider(val){
+  localStorage.setItem('wc26_provider', val);
+  const inp=document.getElementById('apiKeyInp');
+  const orSel=document.getElementById('orModelSel');
+  const bannerText=document.getElementById('bannerText');
+  const banner=document.getElementById('apiKeyBanner');
+  if(val==='openrouter'){
+    if(inp) inp.placeholder='OpenRouter key (sk-or-v1-...)';
+    if(orSel) orSel.style.display='';
+    if(banner){ banner.style.background='#f3e8ff'; banner.style.borderColor='#c084fc'; }
+    if(bannerText) bannerText.innerHTML='🆓 <strong>OpenRouter gratis!</strong> Daftar di <a href="https://openrouter.ai/keys" target="_blank" style="color:#6b21a8;font-weight:600;">openrouter.ai/keys</a> → Create Key';
+  } else {
+    if(inp) inp.placeholder='Anthropic key (sk-ant-...)';
+    if(orSel) orSel.style.display='none';
+    if(banner){ banner.style.background='#fff3cd'; banner.style.borderColor='#ffc107'; }
+    if(bannerText) bannerText.innerHTML='🔑 Masukkan <strong>Anthropic API key</strong>. Dapatkan $5 gratis di <a href="https://console.anthropic.com" target="_blank" style="color:#856404;font-weight:600;">console.anthropic.com</a>';
+  }
+  const k=loadApiKey();
+  if(inp) inp.value=k;
+  updateApiStatus(k);
+}
+
+// ── API CALLERS ──
+async function callOpenRouter(apiKey, prompt){
+  const model=(document.getElementById('orModelSel')?.value)||'meta-llama/llama-3.3-70b-instruct:free';
+  const resp=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+apiKey,
+      'HTTP-Referer':location.origin||'http://localhost:8080',
+      'X-Title':'WC2026 Tracker'
+    },
+    body:JSON.stringify({
+      model,max_tokens:1800,temperature:0.7,
+      messages:[
+        {role:'system',content:'You are a football statistics generator. Respond with valid JSON only, no markdown.'},
+        {role:'user',content:prompt}
+      ]
+    })
+  });
+  const data=await resp.json();
+  if(!resp.ok||data.error){
+    const msg=data.error?.message||`HTTP ${resp.status}`;
+    if(resp.status===401) throw new Error('API key OpenRouter tidak valid');
+    if(resp.status===429) throw new Error('Rate limit — coba ganti model atau tunggu beberapa menit');
+    if(resp.status===402) throw new Error('Akun OpenRouter perlu top-up credit');
+    throw new Error(msg);
+  }
+  return data.choices?.[0]?.message?.content||'';
+}
+
+async function callAnthropic(apiKey, prompt){
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:1500,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data=await resp.json();
+  if(!resp.ok||data.error){
+    const msg=data.error?.message||`HTTP ${resp.status}`;
+    if(resp.status===401) throw new Error('API key Anthropic tidak valid');
+    throw new Error(msg);
+  }
+  return data.content.map(c=>c.text||'').join('').trim();
+}
+
+// ── AUTO SYNC STATS ──
+function syncStatsFromMatchData(stats, hTeam, aTeam){
+  function upsert(type,name,team,delta){
+    if(!name||!delta)return;
+    const cc=gCC(team);
+    if(!ST.players[type])ST.players[type]=[];
+    const ex=ST.players[type].findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
+    if(ex>=0) ST.players[type][ex].val=(ST.players[type][ex].val||0)+delta;
+    else ST.players[type].push({name,team,cc,val:delta,pre:false});
+  }
+  (stats.events_h||[]).forEach(ev=>{
+    if(!ev.player)return;
+    if(ev.icon==='⚽') upsert('scorer',ev.player,hTeam,1);
+    if(ev.icon==='🟨') upsert('yellow',ev.player,hTeam,1);
+    if(ev.icon==='🟥') upsert('red',ev.player,hTeam,1);
+    if(ev.detail){const m=ev.detail.match(/[Aa]ssist[:：]\s*(.+)/);if(m)upsert('assist',m[1].trim(),hTeam,1);}
+  });
+  (stats.events_a||[]).forEach(ev=>{
+    if(!ev.player)return;
+    if(ev.icon==='⚽') upsert('scorer',ev.player,aTeam,1);
+    if(ev.icon==='🟨') upsert('yellow',ev.player,aTeam,1);
+    if(ev.icon==='🟥') upsert('red',ev.player,aTeam,1);
+    if(ev.detail){const m=ev.detail.match(/[Aa]ssist[:：]\s*(.+)/);if(m)upsert('assist',m[1].trim(),aTeam,1);}
+  });
+  const gkH=(stats.lineup_h||[]).find(p=>p.pos==='GK');
+  const gkA=(stats.lineup_a||[]).find(p=>p.pos==='GK');
+  if(gkH&&stats.on_target_a>0) upsert('save',gkH.name,hTeam,parseInt(stats.on_target_a)||0);
+  if(gkA&&stats.on_target_h>0) upsert('save',gkA.name,aTeam,parseInt(stats.on_target_h)||0);
+  save();
+}
+
+// ── GENERATE AI STATS ──
+async function generateAIStats(gid,idx){
+  const apiKey=loadApiKey();
+  const provider=getProvider();
+  if(!apiKey){
+    document.getElementById('apiKeyBanner').style.display='flex';
+    toast('⚠️ Masukkan API key dulu!');
+    return;
+  }
+  const key=`${gid}_${idx}`;
+  const ms=gm(gid);const m=ms[idx];
+  const sc=ST.scores[key]||{h:'0',a:'0'};
+  const hg=parseInt(sc.h)||0;const ag2=parseInt(sc.a)||0;
+  const btn=document.getElementById('aiBtnMain');
+  if(btn){btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> Menganalisis...`;}
+  const aiEl=document.getElementById('aiResult');
+  if(aiEl) aiEl.innerHTML=`
+    <div class="skeleton" style="height:12px;margin-bottom:8px;border-radius:4px;"></div>
+    <div class="skeleton" style="height:12px;margin-bottom:8px;width:70%;border-radius:4px;"></div>
+    <div class="skeleton" style="height:50px;margin-top:10px;border-radius:4px;"></div>`;
+
+  const prompt=`Generate realistic FIFA World Cup 2026 match statistics for: ${m.h.n} ${hg}–${ag2} ${m.a.n}.
+RULES: events_h must have EXACTLY ${hg} goal events (icon "⚽"), events_a must have EXACTLY ${ag2} goals. Use real player names. 11 players each lineup. For assists use format "Assist: PlayerName" in detail.
+Return ONLY valid JSON (no markdown):
+{"possession_h":number,"shots_h":number,"shots_a":number,"on_target_h":number,"on_target_a":number,"corners_h":number,"corners_a":number,"fouls_h":number,"fouls_a":number,"yellow_h":number,"yellow_a":number,"red_h":number,"red_a":number,"passes_h":number,"passes_a":number,"acc_h":number,"acc_a":number,"formation_h":"string","formation_a":"string","events_h":[{"min":number,"icon":"⚽|🟨|🟥|🔄","player":"name","detail":"desc"}],"events_a":[{"min":number,"icon":"⚽|🟨|🟥|🔄","player":"name","detail":"desc"}],"lineup_h":[{"num":number,"name":"name","pos":"GK|CB|LB|RB|CM|CDM|CAM|LW|RW|ST"}],"lineup_a":[{"num":number,"name":"name","pos":"GK|CB|LB|RB|CM|CDM|CAM|LW|RW|ST"}]}`;
+
+  try{
+    let raw='';
+    if(provider==='openrouter') raw=await callOpenRouter(apiKey,prompt);
+    else raw=await callAnthropic(apiKey,prompt);
+
+    const cleaned=raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    const stats=JSON.parse(cleaned);
+    ST.matchStats[key]=stats;
+    syncStatsFromMatchData(stats,m.h.n,m.a.n);
+    save();
+
+    const m2=gm(gid)[idx];
+    document.getElementById('modalBody').innerHTML=
+      `<div class="modal-hero">
+        <div class="modal-team">${fiModal(m2.h.cc)}<div class="modal-team-name">${m2.h.n}</div></div>
+        <div class="modal-score-center">
+          <div class="modal-score-num"><span>${hg}</span>&nbsp;–&nbsp;<span>${ag2}</span></div>
+          <div style="font-size:9px;color:#aaa;text-align:center;">${m2.sch[0]}<br>${m2.sch[1]} WIB</div>
+        </div>
+        <div class="modal-team">${fiModal(m2.a.cc)}<div class="modal-team-name">${m2.a.n}</div></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+        <button class="ai-btn" onclick="generateAIStats('${gid}',${idx})" style="width:auto;padding:6px 12px;font-size:10px;background:linear-gradient(135deg,#555,#333);">🔄 Generate Ulang</button>
+      </div>`
+      +renderStatsHTML(stats,m2,gid,idx,true,hg,ag2);
+    toast('✅ Statistik berhasil! Tab Statistik diperbarui.');
+    updateApiStatus(apiKey);
+
+  }catch(err){
+    const msg=err.message||'Unknown error';
+    let hint='';
+    if(msg.includes('rate limit')||msg.includes('Rate limit')) hint='Coba ganti model atau tunggu beberapa menit.';
+    else if(msg.includes('tidak valid')) hint='Cek kembali API key kamu.';
+    else if(msg.includes('Failed to fetch')||msg.includes('CORS')||msg.includes('NetworkError'))
+      hint='Buka file via server lokal: Terminal → <code>cd ~/Downloads && python3 -m http.server 8080</code>';
+    if(aiEl) aiEl.innerHTML=`<div style="color:#e63946;font-size:11px;text-align:center;padding:14px;background:#fff5f5;border-radius:8px;border:1px solid #fcc;">
+      <div style="font-size:18px;margin-bottom:5px;">❌</div>
+      <strong>Gagal generate</strong><br>
+      <span style="color:#888;font-size:10px;">${msg}</span>
+      ${hint?`<br><span style="color:#e65100;font-size:10px;margin-top:4px;display:block;">${hint}</span>`:''}
+      <br><button class="ai-btn" style="margin-top:10px;width:auto;padding:7px 16px;font-size:11px;" onclick="generateAIStats('${gid}',${idx})">🔄 Coba lagi</button>
+    </div>`;
+    if(btn){btn.disabled=false;btn.innerHTML=`<span>✨</span> Generate Statistik AI`;}
+  }
+}
+
+// ── STATS ──
+function teamDropdown(id){
+  const opts=ALL_TEAMS.map(t=>`<option value="${t.n}">${fi(t.cc,'fi fi-xs')} ${t.n}</option>`).join('');
+  return`<select id="${id}" style="min-width:110px;"><option value="">-- Tim --</option>${opts}</select>`;
+}
+
+// Players by team — built from PREFILL + existing players
+function getPlayersByTeam(team){
+  if(!team) return [];
+  const all=new Map();
+  // From official squad data
+  (SQUADS[team]||[]).forEach(name=>all.set(name,{name,team}));
+  // From saved players (add any custom ones not in squad)
+  Object.values(ST.players).forEach(arr=>{
+    (arr||[]).forEach(p=>{ if(p.team===team) all.set(p.name,{name:p.name,team}); });
+  });
+  // From AI-generated lineups
+  Object.values(ST.matchStats||{}).forEach(stats=>{
+    (stats.lineup_h||[]).forEach(p=>{ if(p._team===team) all.set(p.name,{name:p.name,team}); });
+    (stats.lineup_a||[]).forEach(p=>{ if(p._team===team) all.set(p.name,{name:p.name,team}); });
+  });
+  return Array.from(all.values()).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+function onTeamChange(){
+  const team=document.getElementById('pteam')?.value||'';
+  const players=getPlayersByTeam(team);
+  const psel=document.getElementById('pname_sel');
+  const pinp=document.getElementById('pname_inp');
+  if(!psel||!pinp) return;
+  if(players.length>0){
+    psel.innerHTML=`<option value="">-- Pilih Pemain --</option>`
+      +players.map(p=>`<option value="${p.name}">${p.name}</option>`).join('')
+      +`<option value="__custom__">+ Nama lain...</option>`;
+    psel.style.display='';
+    pinp.style.display='none';
+    pinp.value='';
+  } else {
+    psel.innerHTML='';
+    psel.style.display='none';
+    pinp.style.display='';
+    pinp.placeholder='Nama pemain...';
+  }
+}
+
+function onPlayerSelChange(){
+  const val=document.getElementById('pname_sel')?.value||'';
+  const pinp=document.getElementById('pname_inp');
+  if(!pinp) return;
+  if(val==='__custom__'){
+    pinp.style.display='';
+    pinp.value='';
+    pinp.focus();
+  } else {
+    pinp.style.display='none';
+    pinp.value='';
+  }
+}
+function renderStats(){const type=STAT_TYPES.find(s=>s.id===ST.ast);const players=(ST.players[ST.ast]||[]).slice().sort((a,b)=>b.val-a.val);const medals=['🥇','🥈','🥉'];let tg=0,tm=0,draws=0,wins=0;const gg={};GROUPS.forEach(g=>{gg[g.id]=0;gm(g.id).forEach((m,i)=>{const sc=ST.scores[`${g.id}_${i}`];if(sc&&sc.h!==''&&sc.a!==''){tm++;const h2=parseInt(sc.h)||0,a2=parseInt(sc.a)||0,tot=h2+a2;tg+=tot;gg[g.id]+=tot;if(h2===a2)draws++;else wins++;}});});const tgr=Object.entries(gg).sort((a,b)=>b[1]-a[1])[0];const gc=tgr&&tgr[1]>0?GROUPS.find(g=>g.id===tgr[0]).color:'#888';let html=`<div class="stat-tabs2">${STAT_TYPES.map(s=>`<button class="stab ${s.id===ST.ast?'active':''}" onclick="setAST('${s.id}')">${s.label}</button>`).join('')}</div><div class="stat-cards2"><div class="sc2"><div class="sv2">${tm}</div><div class="sl2">Laga Selesai</div></div><div class="sc2"><div class="sv2">${tg}</div><div class="sl2">Total Gol</div></div><div class="sc2"><div class="sv2">${tm>0?(tg/tm).toFixed(2):'-'}</div><div class="sl2">Gol/Laga</div></div><div class="sc2"><div class="sv2">${wins}</div><div class="sl2">Menang</div></div><div class="sc2"><div class="sv2">${draws}</div><div class="sl2">Imbang</div></div><div class="sc2"><div class="sv2" style="color:${gc};font-size:16px;">${tgr&&tgr[1]>0?'Grp '+tgr[0]:'-'}</div><div class="sl2">Grup Terproduktif</div></div></div><div class="sec-title">${type.label} <span class="source-tag">📡 Pre-fill: Oddschecker · Jun 2026</span></div><table class="ptable"><thead><tr><th class="c" style="width:28px;">#</th><th>Pemain</th><th>Tim</th><th class="c">${type.col}</th><th class="c" style="width:70px;">Aksi</th></tr></thead><tbody>`;if(!players.length){html+=`<tr><td colspan="5" style="text-align:center;padding:16px;color:#aaa;">Tambah pemain di bawah.</td></tr>`;}else{players.forEach((p,i)=>{const cc=p.cc||gCC(p.team);const isPre=p.pre===true;html+=`<tr class="${isPre?'pre':''}"><td class="c" style="font-size:13px;">${i<3?medals[i]:(i+1)}</td><td><div class="rtc">${cc?fi(cc,'fi fi-sm'):''}<strong>${p.name}</strong><span class="bp ${isPre?'bp-pre':'bp-user'}">${isPre?'Favorit':'Input'}</span></div></td><td><div class="rtc">${cc?fi(cc,'fi fi-xs'):''}<span style="font-size:10px;color:#666;">${p.team}</span></div></td><td class="c"><span class="val-c">${p.val}</span></td><td class="c"><div class="action-btns"><button class="btn-sm" onclick="addVal('${ST.ast}',${i},1)">+</button><button class="btn-sm" onclick="addVal('${ST.ast}',${i},-1)">−</button><button class="btn-sm" onclick="rmPlayer('${ST.ast}',${i})" style="color:#e63946;">×</button></div></td></tr>`;});;}
+html+=`</tbody></table>
+<div class="add-form">
+  <h4>+ Tambah Pemain</h4>
+  <div class="add-fields" style="flex-wrap:wrap;gap:6px;">
+    <select id="pteam" style="min-width:130px;" onchange="onTeamChange()">
+      <option value="">① Pilih Tim...</option>
+      ${ALL_TEAMS.map(t=>`<option value="${t.n}">${t.n}</option>`).join('')}
+    </select>
+    <select id="pname_sel" style="min-width:150px;display:none;" onchange="onPlayerSelChange()">
+      <option value="">② Pilih Pemain...</option>
+    </select>
+    <input id="pname_inp" placeholder="② Ketik nama pemain..." style="flex:1;min-width:120px;display:none;">
+    <input id="pval" type="number" placeholder="${type.col}" style="width:60px;" min="0">
+    <button class="btn-add" onclick="addPlayer()">+ Tambah</button>
+  </div>
+  <div style="font-size:10px;color:#aaa;margin-top:4px;">Pilih tim dahulu → nama pemain muncul otomatis dari daftar</div>
+</div>`;;document.getElementById('statsBody').innerHTML=html;}
+function addVal(type,rank,delta){const sorted=(ST.players[type]||[]).slice().sort((a,b)=>b.val-a.val);const p=sorted[rank];if(!p)return;const orig=ST.players[type].findIndex(x=>x.name===p.name&&x.team===p.team);if(orig>=0){ST.players[type][orig].val=Math.max(0,(ST.players[type][orig].val||0)+delta);save();renderStats();}}
+function addPlayer(){
+  const team=document.getElementById('pteam')?.value.trim()||'';
+  const psel=document.getElementById('pname_sel');
+  const pinp=document.getElementById('pname_inp');
+  // Get name: from select (unless custom) or input
+  let name='';
+  if(psel&&psel.style.display!=='none'&&psel.value&&psel.value!=='__custom__') name=psel.value.trim();
+  else if(pinp&&pinp.style.display!=='none') name=pinp.value.trim();
+  const v=parseInt(document.getElementById('pval')?.value)||0;
+  if(!name){toast('⚠️ Pilih atau ketik nama pemain');return;}
+  if(!team){toast('⚠️ Pilih tim terlebih dahulu');return;}
+  const cc=gCC(team);
+  if(!ST.players[ST.ast])ST.players[ST.ast]=[];
+  const ex=ST.players[ST.ast].findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
+  if(ex>=0)ST.players[ST.ast][ex].val=(ST.players[ST.ast][ex].val||0)+v;
+  else ST.players[ST.ast].push({name,team,cc,val:v,pre:false});
+  save();
+  // Reset form
+  if(document.getElementById('pteam')) document.getElementById('pteam').value='';
+  if(psel){psel.innerHTML='';psel.style.display='none';}
+  if(pinp){pinp.value='';pinp.style.display='none';}
+  if(document.getElementById('pval')) document.getElementById('pval').value='';
+  renderStats();
+  toast(`✅ ${name} ditambahkan`);
+}
+function rmPlayer(type,rank){const sorted=(ST.players[type]||[]).slice().sort((a,b)=>b.val-a.val);const p=sorted[rank];if(!p)return;if(!confirm(`Hapus ${p.name}?`))return;const orig=ST.players[type].findIndex(x=>x.name===p.name&&x.team===p.team);if(orig>=0){ST.players[type].splice(orig,1);save();renderStats();}}
+function setAST(id){ST.ast=id;save();renderStats();}
+
+function resetAll(){if(confirm('Reset semua data?')){ST.scores={};ST.ko={};ST.koN={};ST.matchStats={};STAT_TYPES.forEach(t=>{ST.players[t.id]=[...(PREFILL[t.id]||[])];});save();renderMatchNav();renderMatches();renderStNav();renderStandings();renderBracket();renderQualPanel();renderStats();toast('✅ Reset selesai');}}
+function sw(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['matches','standings','knockout','stats'][i]===tab));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+tab).classList.add('active');if(tab==='standings'){renderStNav();renderStandings();}if(tab==='knockout'){computeKoN();renderBracket();renderQualPanel();}if(tab==='stats')renderStats();}
+
+// ── INIT ──
+(function(){
+  const provider=getProvider();
+  const sel=document.getElementById('providerSel');
+  if(sel) sel.value=provider;
+  switchProvider(provider);
+  const k=loadApiKey();
+  if(k){
+    const el=document.getElementById('apiKeyInp');
+    if(el) el.value=k;
+    updateApiStatus(k);
+  }
+})();
+computeKoN();renderMatchNav();renderMatches();renderStNav();
+</script>
+</body>
+</html>
