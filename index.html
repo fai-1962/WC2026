@@ -246,6 +246,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 @media(max-width:360px){.stgrid{grid-template-columns:1fr;}}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -272,7 +274,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <option value="gemma2-9b-it">Gemma2 9B</option>
       <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 Distill 70B</option>
     </select>
-    <span id="apiStatus" style="font-size:11px;">⚪</span>
+    <span id="apiStatus" style="font-size:11px;" title="Status API key">⚪</span>
+    <span id="syncStatus" style="font-size:11px;cursor:pointer;" title="Status sinkronisasi Firebase">🔥</span>
     <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
   </div>
 </div>
@@ -425,7 +428,92 @@ let ST={ag:'A',asg:'ALL',ast:'scorer',scores:{},ko:{},koN:{},players:{},matchSta
 try{const d=localStorage.getItem('wc26v15');if(d){const p=JSON.parse(d);Object.assign(ST,p);}}catch(e){}
 STAT_TYPES.forEach(t=>{if(!ST.players[t.id])ST.players[t.id]=[...(PREFILL[t.id]||[])];});
 if(!ST.matchStats)ST.matchStats={};
-const save=()=>{try{localStorage.setItem('wc26v15',JSON.stringify(ST));}catch(e){}};
+
+// ── FIREBASE SYNC ──
+const firebaseConfig={
+  apiKey:"AIzaSyDyg4GT54xH6T7DlsX2YqIV0r9MB7QcTFM",
+  authDomain:"wc2026-85a0c.firebaseapp.com",
+  databaseURL:"https://wc2026-85a0c-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"wc2026-85a0c",
+  storageBucket:"wc2026-85a0c.firebasestorage.app",
+  messagingSenderId:"527188935712",
+  appId:"1:527188935712:web:431cff3fdb1ca70e20e845"
+};
+const CLIENT_ID=(function(){
+  let id=localStorage.getItem('wc26_client_id');
+  if(!id){id='c_'+Math.random().toString(36).slice(2)+Date.now();localStorage.setItem('wc26_client_id',id);}
+  return id;
+})();
+let fbRef=null,fbReady=false,fbSyncTimer=null,fbFirstSync=true;
+function setSyncStatus(state){
+  const el=document.getElementById('syncStatus');
+  if(!el)return;
+  const map={connecting:['🟡','Menghubungkan ke Firebase...'],synced:['🟢','Tersinkron — data otomatis update di semua device'],syncing:['🔄','Menyimpan ke cloud...'],error:['🔴','Gagal terhubung ke Firebase — data tersimpan lokal saja'],offline:['⚪','Firebase tidak aktif']};
+  const [icon,title]=map[state]||map.offline;
+  el.textContent=icon; el.title=title;
+}
+function initFirebaseSync(){
+  try{
+    if(typeof firebase==='undefined'){setSyncStatus('error');return;}
+    firebase.initializeApp(firebaseConfig);
+    fbRef=firebase.database().ref('wc2026data');
+    fbReady=true;
+    setSyncStatus('connecting');
+    fbRef.on('value',snap=>{
+      const data=snap.val();
+      if(!data){
+        // No remote data yet — push current local state
+        fbPush();
+        setSyncStatus('synced');
+        fbFirstSync=false;
+        return;
+      }
+      if(data._meta&&data._meta.lastEditBy===CLIENT_ID){
+        // Our own write echoed back — ignore
+        setSyncStatus('synced');
+        fbFirstSync=false;
+        return;
+      }
+      // Remote update from another device — merge in
+      const meta=data._meta; delete data._meta;
+      Object.assign(ST,data);
+      STAT_TYPES.forEach(t=>{if(!ST.players[t.id])ST.players[t.id]=[...(PREFILL[t.id]||[])];});
+      if(!ST.matchStats)ST.matchStats={};
+      try{localStorage.setItem('wc26v15',JSON.stringify(ST));}catch(e){}
+      renderAll();
+      setSyncStatus('synced');
+      if(!fbFirstSync) toast('🔄 Data diperbarui dari device lain');
+      fbFirstSync=false;
+    },err=>{console.error('Firebase error',err);setSyncStatus('error');});
+  }catch(e){console.error('Firebase init error',e);setSyncStatus('error');}
+}
+function fbPush(){
+  if(!fbReady||!fbRef)return;
+  setSyncStatus('syncing');
+  const payload=JSON.parse(JSON.stringify(ST));
+  payload._meta={lastEditBy:CLIENT_ID,lastEditAt:Date.now()};
+  fbRef.set(payload).then(()=>setSyncStatus('synced')).catch(e=>{console.error('Firebase set error',e);setSyncStatus('error');});
+}
+function fbScheduleSync(){
+  if(!fbReady)return;
+  clearTimeout(fbSyncTimer);
+  fbSyncTimer=setTimeout(fbPush,800);
+}
+
+// ── RENDER ALL (used for remote sync updates) ──
+function renderAll(){
+  computeKoN();
+  renderMatchNav();
+  renderMatches();
+  const activeView=document.querySelector('.view.active');
+  if(activeView){
+    if(activeView.id==='view-standings'){renderStNav();renderStandings();}
+    else if(activeView.id==='view-knockout'){renderBracket();renderQualPanel();}
+    else if(activeView.id==='view-stats'){renderStats();}
+  }
+}
+
+const save=()=>{try{localStorage.setItem('wc26v15',JSON.stringify(ST));}catch(e){}fbScheduleSync();};
 const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);};
 
 // ── CALC ──
@@ -1006,6 +1094,7 @@ function sw(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.to
   }
 })();
 computeKoN();renderMatchNav();renderMatches();renderStNav();
+initFirebaseSync();
 </script>
 </body>
 </html>
