@@ -334,19 +334,137 @@ function fi(cc,cls='fi'){
 
 // ── JADWAL (WIB, sumber: Al Jazeera/ESPN resmi) ──
 const SCHED={
-  A:[[`Jum 12 Jun`,`02.00`,`Mexico City Stadium`],[`Sab 13 Jun`,`09.00`,`Guadalajara Stadium`],[`Jum 19 Jun`,`03.00`,`Guadalajara Stadium`],[`Sab 20 Jun`,`08.00`,`Los Angeles Stadium`],[`Jum 26 Jun`,`02.00`,`Mexico City Stadium`],[`Jum 26 Jun`,`02.00`,`Monterrey Stadium`]],
-  B:[[`Sab 13 Jun`,`02.00`,`Toronto Stadium`],[`Ming 14 Jun`,`02.00`,`San Francisco Stadium`],[`Sab 20 Jun`,`05.00`,`BC Place, Vancouver`],[`Ming 21 Jun`,`08.00`,`Los Angeles Stadium`],[`Sab 27 Jun`,`05.00`,`BC Place, Vancouver`],[`Sab 27 Jun`,`05.00`,`Seattle Stadium`]],
-  C:[[`Sen 15 Jun`,`05.00`,`NJ Stadium`],[`Sen 15 Jun`,`08.00`,`Boston Stadium`],[`Ming 21 Jun`,`05.00`,`Boston Stadium`],[`Sen 22 Jun`,`07.30`,`Philadelphia Stadium`],[`Sab 27 Jun`,`05.00`,`Miami Stadium`],[`Sab 27 Jun`,`05.00`,`Atlanta Stadium`]],
-  D:[[`Sab 13 Jun`,`08.00`,`Los Angeles Stadium`],[`Sen 15 Jun`,`11.00`,`BC Place, Vancouver`],[`Ming 21 Jun`,`02.00`,`Seattle Stadium`],[`Sen 22 Jun`,`10.00`,`San Francisco Stadium`],[`Sab 27 Jun`,`–`,`TBD`],[`Sab 27 Jun`,`–`,`TBD`]],
-  E:[[`Sen 15 Jun`,`00.00`,`Houston Stadium`],[`Sen 15 Jun`,`06.00`,`Philadelphia Stadium`],[`Sel 23 Jun`,`02.00`,`Toronto Stadium`],[`Sel 23 Jun`,`07.00`,`Kansas City Stadium`],[`Sab 27 Jun`,`03.00`,`NJ Stadium`],[`Sab 27 Jun`,`03.00`,`Philadelphia Stadium`]],
-  F:[[`Sen 15 Jun`,`03.00`,`Dallas Stadium`],[`Sel 16 Jun`,`09.00`,`Monterrey Stadium`],[`Sel 23 Jun`,`00.00`,`Houston Stadium`],[`Sel 23 Jun`,`11.00`,`Monterrey Stadium`],[`Sab 27 Jun`,`06.00`,`Dallas Stadium`],[`Sab 27 Jun`,`06.00`,`Kansas City Stadium`]],
-  G:[[`Rab 17 Jun`,`02.00`,`Seattle Stadium`],[`Rab 17 Jun`,`08.00`,`Los Angeles Stadium`],[`Sel 23 Jun`,`02.00`,`Los Angeles Stadium`],[`Sel 23 Jun`,`08.00`,`BC Place, Vancouver`],[`Ming 28 Jun`,`10.00`,`Seattle Stadium`],[`Ming 28 Jun`,`10.00`,`BC Place, Vancouver`]],
-  H:[[`Sel 16 Jun`,`23.00`,`Atlanta Stadium`],[`Kam 18 Jun`,`05.00`,`Miami Stadium`],[`Sel 23 Jun`,`23.00`,`Atlanta Stadium`],[`Kam 25 Jun`,`05.00`,`Miami Stadium`],[`Ming 28 Jun`,`07.00`,`Houston Stadium`],[`Ming 28 Jun`,`07.00`,`Guadalajara Stadium`]],
-  I:[[`Rab 17 Jun`,`02.00`,`NJ Stadium`],[`Rab 17 Jun`,`05.00`,`Boston Stadium`],[`Rab 24 Jun`,`04.00`,`Philadelphia Stadium`],[`Rab 24 Jun`,`07.00`,`NJ Stadium`],[`Ming 28 Jun`,`02.00`,`Boston Stadium`],[`Ming 28 Jun`,`02.00`,`Toronto Stadium`]],
-  J:[[`Kam 18 Jun`,`08.00`,`Kansas City Stadium`],[`Kam 18 Jun`,`11.00`,`San Francisco Stadium`],[`Rab 24 Jun`,`00.00`,`Dallas Stadium`],[`Rab 24 Jun`,`10.00`,`San Francisco Stadium`],[`Sen 29 Jun`,`–`,`TBD`],[`Sen 29 Jun`,`–`,`TBD`]],
-  K:[[`Kam 18 Jun`,`00.00`,`Houston Stadium`],[`Kam 18 Jun`,`09.00`,`Mexico City Stadium`],[`Kam 25 Jun`,`00.00`,`Houston Stadium`],[`Kam 25 Jun`,`09.00`,`Guadalajara Stadium`],[`Sen 29 Jun`,`–`,`TBD`],[`Sen 29 Jun`,`–`,`TBD`]],
-  L:[[`Kam 18 Jun`,`03.00`,`Dallas Stadium`],[`Kam 18 Jun`,`06.00`,`Toronto Stadium`],[`Kam 25 Jun`,`03.00`,`Boston Stadium`],[`Kam 25 Jun`,`06.00`,`Toronto Stadium`],[`Sen 29 Jun`,`04.00`,`NJ Stadium`],[`Sen 29 Jun`,`04.00`,`TBD`]],
+  A:[
+    [`Jum 12 Jun`,`02.00`,`Mexico City Stadium`],
+    [`Jum 12 Jun`,`09.00`,`Guadalajara Stadium`],
+    [`Jum 19 Jun`,`08.00`,`Guadalajara Stadium`],
+    [`Kam 18 Jun`,`23.00`,`Atlanta Stadium`],
+    [`Kam 25 Jun`,`08.00`,`Mexico City Stadium`],
+    [`Kam 25 Jun`,`08.00`,`Monterrey Stadium`],
+  ],
+  B:[
+    [`Sab 13 Jun`,`02.00`,`Toronto Stadium`],
+    [`Ming 14 Jun`,`02.00`,`San Francisco Stadium`],
+    [`Jum 19 Jun`,`05.00`,`BC Place, Vancouver`],
+    [`Jum 19 Jun`,`02.00`,`Los Angeles Stadium`],
+    [`Kam 25 Jun`,`02.00`,`BC Place, Vancouver`],
+    [`Kam 25 Jun`,`02.00`,`Seattle Stadium`],
+  ],
+  C:[
+    [`Ming 14 Jun`,`05.00`,`NJ Stadium`],
+    [`Ming 14 Jun`,`08.00`,`Boston Stadium`],
+    [`Sab 20 Jun`,`07.30`,`Philadelphia Stadium`],
+    [`Sab 20 Jun`,`05.00`,`Boston Stadium`],
+    [`Kam 25 Jun`,`05.00`,`Miami Stadium`],
+    [`Kam 25 Jun`,`05.00`,`Atlanta Stadium`],
+  ],
+  D:[
+    [`Sab 13 Jun`,`08.00`,`Los Angeles Stadium`],
+    [`Ming 14 Jun`,`11.00`,`BC Place, Vancouver`],
+    [`Sab 20 Jun`,`02.00`,`Seattle Stadium`],
+    [`Sab 20 Jun`,`10.00`,`San Francisco Stadium`],
+    [`Jum 26 Jun`,`09.00`,`Los Angeles Stadium`],
+    [`Jum 26 Jun`,`09.00`,`San Francisco Stadium`],
+  ],
+  E:[
+    [`Sen 15 Jun`,`00.00`,`Houston Stadium`],
+    [`Sen 15 Jun`,`06.00`,`Philadelphia Stadium`],
+    [`Ming 21 Jun`,`03.00`,`Toronto Stadium`],
+    [`Ming 21 Jun`,`10.00`,`Kansas City Stadium`],
+    [`Jum 26 Jun`,`03.00`,`NJ Stadium`],
+    [`Jum 26 Jun`,`03.00`,`Philadelphia Stadium`],
+  ],
+  F:[
+    [`Sen 15 Jun`,`03.00`,`Dallas Stadium`],
+    [`Sen 15 Jun`,`09.00`,`Monterrey Stadium`],
+    [`Ming 21 Jun`,`00.00`,`Houston Stadium`],
+    [`Ming 21 Jun`,`11.00`,`Monterrey Stadium`],
+    [`Jum 26 Jun`,`06.00`,`Kansas City Stadium`],
+    [`Jum 26 Jun`,`06.00`,`Dallas Stadium`],
+  ],
+  G:[
+    [`Sel 16 Jun`,`02.00`,`BC Place, Vancouver`],
+    [`Sel 16 Jun`,`08.00`,`Los Angeles Stadium`],
+    [`Sen 22 Jun`,`02.00`,`Los Angeles Stadium`],
+    [`Sen 22 Jun`,`08.00`,`BC Place, Vancouver`],
+    [`Sab 27 Jun`,`10.00`,`BC Place, Vancouver`],
+    [`Sab 27 Jun`,`10.00`,`Seattle Stadium`],
+  ],
+  H:[
+    [`Sen 15 Jun`,`23.00`,`Atlanta Stadium`],
+    [`Sel 16 Jun`,`05.00`,`Miami Stadium`],
+    [`Ming 21 Jun`,`23.00`,`Atlanta Stadium`],
+    [`Sen 22 Jun`,`05.00`,`Miami Stadium`],
+    [`Sab 27 Jun`,`07.00`,`Guadalajara Stadium`],
+    [`Sab 27 Jun`,`07.00`,`Houston Stadium`],
+  ],
+  I:[
+    [`Rab 17 Jun`,`02.00`,`NJ Stadium`],
+    [`Rab 17 Jun`,`05.00`,`Boston Stadium`],
+    [`Sel 23 Jun`,`04.00`,`Philadelphia Stadium`],
+    [`Sel 23 Jun`,`07.00`,`NJ Stadium`],
+    [`Sab 27 Jun`,`02.00`,`Boston Stadium`],
+    [`Sab 27 Jun`,`02.00`,`Toronto Stadium`],
+  ],
+  J:[
+    [`Rab 17 Jun`,`08.00`,`Kansas City Stadium`],
+    [`Rab 17 Jun`,`11.00`,`San Francisco Stadium`],
+    [`Sel 23 Jun`,`00.00`,`Dallas Stadium`],
+    [`Sel 23 Jun`,`10.00`,`San Francisco Stadium`],
+    [`Ming 28 Jun`,`09.00`,`Dallas Stadium`],
+    [`Ming 28 Jun`,`09.00`,`Kansas City Stadium`],
+  ],
+  K:[
+    [`Kam 18 Jun`,`00.00`,`Houston Stadium`],
+    [`Kam 18 Jun`,`09.00`,`Mexico City Stadium`],
+    [`Rab 24 Jun`,`00.00`,`Houston Stadium`],
+    [`Rab 24 Jun`,`09.00`,`Guadalajara Stadium`],
+    [`Ming 28 Jun`,`06.30`,`Miami Stadium`],
+    [`Ming 28 Jun`,`06.30`,`Atlanta Stadium`],
+  ],
+  L:[
+    [`Kam 18 Jun`,`03.00`,`Dallas Stadium`],
+    [`Kam 18 Jun`,`06.00`,`Toronto Stadium`],
+    [`Rab 24 Jun`,`03.00`,`Boston Stadium`],
+    [`Rab 24 Jun`,`06.00`,`Toronto Stadium`],
+    [`Ming 28 Jun`,`04.00`,`NJ Stadium`],
+    [`Ming 28 Jun`,`04.00`,`Philadelphia Stadium`],
+  ],
 };
+const KO_SCHED={
+  r32_0:[`Sen 29 Jun`,`02.00`,`Los Angeles Stadium`],
+  r32_1:[`Sel 30 Jun`,`02.00`,`Houston Stadium`],
+  r32_2:[`Sel 30 Jun`,`03.30`,`Boston Stadium`],
+  r32_3:[`Sel 30 Jun`,`08.00`,`Monterrey Stadium`],
+  r32_4:[`Rab 1 Jul`,`00.00`,`Dallas Stadium`],
+  r32_5:[`Rab 1 Jul`,`04.00`,`NJ Stadium`],
+  r32_6:[`Rab 1 Jul`,`08.00`,`Mexico City Stadium`],
+  r32_7:[`Rab 1 Jul`,`23.00`,`Atlanta Stadium`],
+  r32_8:[`Kam 2 Jul`,`03.00`,`Seattle Stadium`],
+  r32_9:[`Kam 2 Jul`,`03.00`,`San Francisco Stadium`],
+  r32_10:[`Jum 3 Jul`,`02.00`,`Los Angeles Stadium`],
+  r32_11:[`Jum 3 Jul`,`06.00`,`Toronto Stadium`],
+  r32_12:[`Jum 3 Jul`,`10.00`,`BC Place, Vancouver`],
+  r32_13:[`Sab 4 Jul`,`01.00`,`Dallas Stadium`],
+  r32_14:[`Sab 4 Jul`,`05.00`,`Miami Stadium`],
+  r32_15:[`Sab 4 Jul`,`08.30`,`Kansas City Stadium`],
+  r16_0:[`Ming 5 Jul`,`00.00`,`Houston Stadium`],
+  r16_1:[`Ming 5 Jul`,`04.00`,`Philadelphia Stadium`],
+  r16_2:[`Sen 6 Jul`,`03.00`,`NJ Stadium`],
+  r16_3:[`Sen 6 Jul`,`07.00`,`Mexico City Stadium`],
+  r16_4:[`Sel 7 Jul`,`02.00`,`Dallas Stadium`],
+  r16_5:[`Sel 7 Jul`,`07.00`,`Seattle Stadium`],
+  r16_6:[`Sel 7 Jul`,`23.00`,`Atlanta Stadium`],
+  r16_7:[`Rab 8 Jul`,`03.00`,`BC Place, Vancouver`],
+  qf_0:[`Jum 10 Jul`,`03.00`,`Boston Stadium`],
+  qf_1:[`Sab 11 Jul`,`02.00`,`Los Angeles Stadium`],
+  qf_2:[`Ming 12 Jul`,`03.00`,`Miami Stadium`],
+  qf_3:[`Ming 12 Jul`,`08.00`,`Kansas City Stadium`],
+  sf_0:[`Rab 15 Jul`,`02.00`,`Dallas Stadium`],
+  sf_1:[`Kam 16 Jul`,`02.00`,`Atlanta Stadium`],
+  final_0:[`Sen 20 Jul`,`02.00`,`NJ Stadium`],
+};
+
 
 const GROUPS=[
   {id:'A',color:'#1a73e8',teams:[{n:'Meksiko',cc:'mx'},{n:'Afrika Selatan',cc:'za'},{n:'Korea Selatan',cc:'kr'},{n:'Rep. Ceko',cc:'cz'}]},
@@ -550,13 +668,103 @@ function stHTMLCompact(gid){const st=calcSt(gid);let h=`<table class="compact-ta
 function stHTMLFull(gid){const st=calcSt(gid);let h=`<table class="sttable"><thead><tr><th>#</th><th style="text-align:left;min-width:100px;">Tim</th><th>M</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>SG</th><th>Pts</th><th>Forma</th></tr></thead><tbody>`;st.forEach((t,i)=>{const cls=i<2?'q1':i===2?'q3':'';const pc=i<2?'pb'+(i+1):i===2?'pb3':'pb4';h+=`<tr class="${cls}"><td><span class="pb ${pc}">${i+1}</span></td><td><div class="tc">${fi(t.cc)}<span>${t.n}</span></div></td><td>${t.mp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td style="font-weight:700;color:${t.gd>0?'#1a7a4a':t.gd<0?'#c62828':'inherit'};">${t.gd>0?'+':''}${t.gd}</td><td><strong>${t.pts}</strong></td><td>${formDots(t.form)}</td></tr>`;});return h+`</tbody></table>`;}
 
 // ── MATCHES ──
+// ── KNOCKOUT ROUND META (used inside tab Pertandingan) ──
+const KO_ROUNDS=[
+  {id:'r32',label:'32 Besar',count:16,color:'#7c3aed'},
+  {id:'r16',label:'16 Besar',count:8,color:'#d97706'},
+  {id:'qf',label:'Perempat Final',count:4,color:'#dc2626'},
+  {id:'sf',label:'Semifinal',count:2,color:'#0891b2'},
+  {id:'final',label:'Final',count:1,color:'#b45309'},
+];
+function isKO(id){return KO_ROUNDS.some(r=>r.id===id);}
+function getMatchInfo(gid,idx){
+  if(isKO(gid)){
+    const k=`${gid}_${idx}`;const nm=ST.koN[k]||{};
+    return{
+      h:{n:nm.hn||'TBD',cc:nm.hcc||''},
+      a:{n:nm.an||'TBD',cc:nm.acc||''},
+      sch:KO_SCHED[k]||['TBD','–','TBD']
+    };
+  }
+  return gm(gid)[idx];
+}
+function getMatchScore(gid,idx){
+  const k=`${gid}_${idx}`;
+  return isKO(gid)?(ST.ko[k]||{h:'',a:''}):(ST.scores[k]||{h:'',a:''});
+}
+function setUniversalSc(gid,idx,side,val){
+  const k=`${gid}_${idx}`;
+  if(isKO(gid)){
+    setKoSc(k,side,val);
+    renderMatches();
+  }else{
+    setSc(k,side,val);
+  }
+}
+function koMatchReady(gid,idx){
+  const k=`${gid}_${idx}`;const nm=ST.koN[k]||{};
+  return !!(nm.hn&&nm.an&&nm.hn!=='TBD'&&nm.an!=='TBD');
+}
+
 function renderMatchNav(){
   const allBtn=`<button class="grp-btn ${ST.ag==='ALL'?'active':''}" style="${ST.ag==='ALL'?'background:#1a1a2e;color:#fff;border-color:#1a1a2e;':''}" onclick="setAG('ALL')">📅 Semua</button>`;
   const grpBtns=GROUPS.map(g=>`<button class="grp-btn ${g.id===ST.ag?'active':''}" style="${g.id===ST.ag?'background:'+g.color+';color:#fff;border-color:'+g.color+';':''}" onclick="setAG('${g.id}')">${g.id}</button>`).join('');
-  document.getElementById('matchNav').innerHTML=allBtn+grpBtns;
+  const koBtn=`<button class="grp-btn ${ST.ag==='KO'?'active':''}" style="${ST.ag==='KO'?'background:#7c3aed;color:#fff;border-color:#7c3aed;':''}" onclick="setAG('KO')">🏆 Gugur</button>`;
+  document.getElementById('matchNav').innerHTML=allBtn+grpBtns+koBtn;
+}
+
+function renderKOMatches(){
+  computeKoN();
+  let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <span style="width:10px;height:10px;border-radius:2px;background:#7c3aed;display:inline-block;"></span>
+    <span style="font-size:12px;font-weight:700;color:#333;">🏆 Babak Gugur</span>
+    <span style="font-size:9px;color:#888;">Tim mengikuti susunan di tab Babak Gugur · skor di sini otomatis tersinkron</span>
+  </div>`;
+  KO_ROUNDS.forEach(rnd=>{
+    h+=`<div style="margin:14px 0 8px;display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;height:1px;background:#e0e0e0;"></div>
+      <span style="font-size:11px;font-weight:700;color:#fff;background:${rnd.color};padding:3px 12px;border-radius:999px;white-space:nowrap;">${rnd.label}</span>
+      <div style="flex:1;height:1px;background:#e0e0e0;"></div>
+    </div>`;
+    for(let i=0;i<rnd.count;i++){
+      const k=`${rnd.id}_${i}`;
+      const m=getMatchInfo(rnd.id,i);
+      const sc=getMatchScore(rnd.id,i);
+      const ready=koMatchReady(rnd.id,i);
+      const d2=ready&&sc.h!==''&&sc.a!=='';
+      const hg=d2?parseInt(sc.h)||0:null,ag2=d2?parseInt(sc.a)||0:null;
+      const hw=d2&&hg>ag2,aw=d2&&ag2>hg;
+      const [d,t,s]=m.sch;
+      const hasStat=!!ST.matchStats[k];
+      h+=`<div class="match-card" style="${ready?'':'opacity:.5;'}" onclick="${ready?`openModal('${rnd.id}',${i})`:`toast('⚠️ Tim belum ditentukan — lengkapi fase grup atau bracket dahulu')`}">
+        <div class="match-stadium" style="background:${rnd.color}15;">
+          <span style="color:${rnd.color};font-weight:800;font-size:9px;">${rnd.label.toUpperCase()}</span>
+          &nbsp;·&nbsp;🏟 ${s}${hasStat?'&nbsp;·&nbsp;<span style="color:#1a73e8;">📊 Stats</span>':''}
+        </div>
+        <div class="match-body">
+          <div class="match-team ${hw?'match-winner':''}">${m.h.cc?fiRect(m.h.cc):`<span style="width:28px;height:20px;display:inline-block;"></span>`}<div class="match-name">${m.h.n}</div></div>
+          <div class="match-center">
+            <div class="vs-badge" style="background:${rnd.color};">${d2?`<span style="font-size:12px;font-weight:900;">${hg}–${ag2}</span>`:'VS'}</div>
+            <div class="score-row" onclick="event.stopPropagation()">
+              <input class="score-inp" type="number" min="0" max="99" value="${sc.h||''}" placeholder="–" ${ready?'':'disabled'} onchange="setUniversalSc('${rnd.id}',${i},'h',this.value)" onclick="event.stopPropagation()">
+              <span class="score-sep">:</span>
+              <input class="score-inp" type="number" min="0" max="99" value="${sc.a||''}" placeholder="–" ${ready?'':'disabled'} onchange="setUniversalSc('${rnd.id}',${i},'a',this.value)" onclick="event.stopPropagation()">
+            </div>
+          </div>
+          <div class="match-team ${aw?'match-winner':''}">${m.a.cc?fiRect(m.a.cc):`<span style="width:28px;height:20px;display:inline-block;"></span>`}<div class="match-name">${m.a.n}</div></div>
+        </div>
+        <div class="match-footer">
+          <div class="match-dt"><span>📅 ${d}</span><span>⏰ ${t} WIB</span></div>
+          <span class="match-status ${d2?'status-done':'status-pending'}">${!ready?'⏳ Menunggu kepastian tim':(d2?`✓ Selesai ${hg}–${ag2} · Klik untuk stats AI`:'Belum dimainkan')}</span>
+        </div>
+      </div>`;
+    }
+  });
+  document.getElementById('matchBody').innerHTML=h;
 }
 function renderMatches(){
   if(ST.ag==='ALL'){ renderAllMatches(); return; }
+  if(ST.ag==='KO'){ renderKOMatches(); return; }
   const g=GROUPS.find(x=>x.id===ST.ag),ms=gm(ST.ag),done=grpDone(ST.ag);
   let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${g.color};display:inline-block;"></span><span style="font-size:12px;font-weight:700;color:#333;">Grup ${g.id}</span>${done?`<span style="font-size:9px;background:#34a853;color:#fff;padding:2px 8px;border-radius:999px;">✓ Selesai</span>`:''}</div>`;
   ms.forEach((m,i)=>{
@@ -676,8 +884,8 @@ function renderQualPanel(){const{auto,p3,best8}=getQual();const done=doneCount()
 function doFill(){const{auto,best8}=getQual();const q=[...auto.filter(t=>t.pos===1),...auto.filter(t=>t.pos===2),...best8];for(let i=0;i<16;i++){const k=`r32_${i}`,t1=q[i]||null,t2=q[i+16]||null;ST.koN[k]={hn:t1?t1.n:'',hcc:t1?t1.cc:'',an:t2?t2.n:'',acc:t2?t2.cc:'',_auto:true};}propagateWinners();save();renderBracket();renderQualPanel();toast('✅ Bracket diperbarui!');}
 function brdMatch(rnd,idx){const k=`${rnd}_${idx}`,nm=ST.koN[k]||{},sc=ST.ko[k]||{};const hw=sc.h!==''&&sc.a!==''&&parseInt(sc.h)>parseInt(sc.a),aw=sc.h!==''&&sc.a!==''&&parseInt(sc.a)>parseInt(sc.h);const isAdv=rnd!=='r32'&&(!ST.koN[k]||ST.koN[k]._auto!==false);return`<div class="brd-m"><div class="brd-t ${hw?'win':''}">${nm.hcc?fi(nm.hcc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni ${rnd==='r32'&&nm.hn?'af':isAdv&&nm.hn?'adv':''}" value="${nm.hn||''}" placeholder="TBD" onchange="setKoN('${k}','hn',this.value)"><input class="brd-sc" type="number" value="${sc.h||''}" placeholder="-" onchange="setKoSc('${k}','h',this.value)"></div><div class="brd-t ${aw?'win':''}">${nm.acc?fi(nm.acc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni ${rnd==='r32'&&nm.an?'af':isAdv&&nm.an?'adv':''}" value="${nm.an||''}" placeholder="TBD" onchange="setKoN('${k}','an',this.value)"><input class="brd-sc" type="number" value="${sc.a||''}" placeholder="-" onchange="setKoSc('${k}','a',this.value)"></div></div>`;}
 function renderBracket(){computeKoN();const champ=ST.ko.champion||{};function makeCol(hd,m,n){return`<div class="rd-col" style="min-width:${n>=8?118:n>=4?106:n>=2?98:88}px;max-width:${n>=8?132:n>=4?120:108}px;flex:1;"><div class="rd-hd">${hd}</div><div class="rd-matches">${m}</div></div>`;}function cL(p){const h=p*2*42;return`<div style="width:14px;flex-shrink:0;position:relative;"><svg width="14" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 14 ${h}" preserveAspectRatio="none">${Array.from({length:p},(_,i)=>{const y1=i*2*42+21,y2=(i*2+1)*42+21,ym=(y1+y2)/2;return`<polyline points="0,${y1} 7,${y1} 7,${y2} 0,${y2}" fill="none" stroke="#b0bec5" stroke-width="1.2"/><line x1="7" y1="${ym}" x2="14" y2="${ym}" stroke="#b0bec5" stroke-width="1.2"/>`;}).join('')}</svg></div>`;}function cR(p){const h=p*2*42;return`<div style="width:14px;flex-shrink:0;position:relative;"><svg width="14" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 14 ${h}" preserveAspectRatio="none">${Array.from({length:p},(_,i)=>{const y1=i*2*42+21,y2=(i*2+1)*42+21,ym=(y1+y2)/2;return`<polyline points="14,${y1} 7,${y1} 7,${y2} 14,${y2}" fill="none" stroke="#b0bec5" stroke-width="1.2"/><line x1="7" y1="${ym}" x2="0" y2="${ym}" stroke="#b0bec5" stroke-width="1.2"/>`;}).join('')}</svg></div>`;}const center=`<div class="center-col-brd"><div class="rd-hd">🏆 Final</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;">${brdMatch('final',0)}<div class="champ-box">${champ.cc?`<img src="https://flagcdn.com/w80/${champ.cc.toLowerCase()}.png" style="width:50px;height:33px;object-fit:cover;border-radius:5px;border:1px solid #ddd;" alt="" onerror="this.style.display='none'">`:`<div style="font-size:28px;line-height:1;">🏆</div>`}<div style="font-size:10px;color:#888;font-weight:700;margin:5px 0 2px;">JUARA DUNIA</div><input class="champ-inp" value="${champ.name||''}" placeholder="Nama juara..." onchange="setChamp(this.value)"><div style="font-size:9px;color:#bbb;margin-top:3px;">19 Jul · NJ Stadium</div></div></div></div>`;document.getElementById('bracket').innerHTML=makeCol('32 Besar',Array.from({length:8},(_,i)=>brdMatch('r32',i)).join(''),8)+cL(4)+makeCol('16 Besar',Array.from({length:4},(_,i)=>brdMatch('r16',i)).join(''),4)+cL(2)+makeCol('Perempat Final',Array.from({length:2},(_,i)=>brdMatch('qf',i)).join(''),2)+cL(1)+makeCol('Semifinal',brdMatch('sf',0),1)+center+makeCol('Semifinal',brdMatch('sf',1),1)+cR(1)+makeCol('Perempat Final',Array.from({length:2},(_,i)=>brdMatch('qf',i+2)).join(''),2)+cR(2)+makeCol('16 Besar',Array.from({length:4},(_,i)=>brdMatch('r16',i+4)).join(''),4)+cR(4)+makeCol('32 Besar',Array.from({length:8},(_,i)=>brdMatch('r32',i+8)).join(''),8);}
-function setKoN(k,f,v){if(!ST.koN[k])ST.koN[k]={};ST.koN[k][f]=v;ST.koN[k]._auto=false;if(f==='hn'){const cc=gCC(v);if(cc)ST.koN[k].hcc=cc;}if(f==='an'){const cc=gCC(v);if(cc)ST.koN[k].acc=cc;}save();renderBracket();renderQualPanel();}
-function setKoSc(k,f,v){if(!ST.ko[k])ST.ko[k]={};ST.ko[k][f]=v;save();propagateWinners();renderBracket();}
+function setKoN(k,f,v){if(!ST.koN[k])ST.koN[k]={};ST.koN[k][f]=v;ST.koN[k]._auto=false;if(f==='hn'){const cc=gCC(v);if(cc)ST.koN[k].hcc=cc;}if(f==='an'){const cc=gCC(v);if(cc)ST.koN[k].acc=cc;}save();renderBracket();renderQualPanel();if(ST.ag==='KO')renderKOMatches();}
+function setKoSc(k,f,v){if(!ST.ko[k])ST.ko[k]={};ST.ko[k][f]=v;if(ST.matchStats[k])delete ST.matchStats[k];save();propagateWinners();renderBracket();}
 function setChamp(v){if(!ST.ko.champion)ST.ko.champion={};ST.ko.champion.name=v;ST.ko.champion._auto=false;const cc=gCC(v);if(cc)ST.ko.champion.cc=cc;save();renderBracket();}
 
 // ══════════════════
@@ -685,8 +893,8 @@ function setChamp(v){if(!ST.ko.champion)ST.ko.champion={};ST.ko.champion.name=v;
 // Gunakan class .open, TIDAK mengubah display sama sekali
 // ══════════════════
 function openModal(gid,idx){
-  const ms=gm(gid);const m=ms[idx];
-  const key=`${gid}_${idx}`;const sc=ST.scores[key]||{h:'',a:''};
+  const m=getMatchInfo(gid,idx);
+  const key=`${gid}_${idx}`;const sc=getMatchScore(gid,idx);
   const done=sc.h!==''&&sc.a!=='';const hg=done?parseInt(sc.h)||0:null;const ag=done?parseInt(sc.a)||0:null;
   document.getElementById('modalTitle').textContent=`${m.h.n} vs ${m.a.n}`;
 
@@ -909,8 +1117,8 @@ async function generateAIStats(gid,idx){
     return;
   }
   const key=`${gid}_${idx}`;
-  const ms=gm(gid);const m=ms[idx];
-  const sc=ST.scores[key]||{h:'0',a:'0'};
+  const m=getMatchInfo(gid,idx);
+  const sc=getMatchScore(gid,idx);
   const hg=parseInt(sc.h)||0;const ag2=parseInt(sc.a)||0;
   const btn=document.getElementById('aiBtnMain');
   if(btn){btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> Menganalisis...`;}
@@ -937,7 +1145,7 @@ Return ONLY valid JSON (no markdown):
     syncStatsFromMatchData(stats,m.h.n,m.a.n);
     save();
 
-    const m2=gm(gid)[idx];
+    const m2=getMatchInfo(gid,idx);
     document.getElementById('modalBody').innerHTML=
       `<div class="modal-hero">
         <div class="modal-team">${fiModal(m2.h.cc)}<div class="modal-team-name">${m2.h.n}</div></div>
