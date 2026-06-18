@@ -370,7 +370,7 @@ const SCHED={
     [`Sen 15 Jun`,`00.00`,`Houston Stadium`],
     [`Sen 15 Jun`,`06.00`,`Philadelphia Stadium`],
     [`Ming 21 Jun`,`03.00`,`Toronto Stadium`],
-    [`Ming 21 Jun`,`10.00`,`Kansas City Stadium`],
+    [`Ming 21 Jun`,`07.00`,`Kansas City Stadium`],
     [`Jum 26 Jun`,`03.00`,`NJ Stadium`],
     [`Jum 26 Jun`,`03.00`,`Philadelphia Stadium`],
   ],
@@ -441,7 +441,7 @@ const KO_SCHED={
   r32_6:[`Rab 1 Jul`,`08.00`,`Mexico City Stadium`],
   r32_7:[`Rab 1 Jul`,`23.00`,`Atlanta Stadium`],
   r32_8:[`Kam 2 Jul`,`03.00`,`Seattle Stadium`],
-  r32_9:[`Kam 2 Jul`,`03.00`,`San Francisco Stadium`],
+  r32_9:[`Kam 2 Jul`,`07.00`,`San Francisco Stadium`],
   r32_10:[`Jum 3 Jul`,`02.00`,`Los Angeles Stadium`],
   r32_11:[`Jum 3 Jul`,`06.00`,`Toronto Stadium`],
   r32_12:[`Jum 3 Jul`,`10.00`,`BC Place, Vancouver`],
@@ -458,7 +458,7 @@ const KO_SCHED={
   r16_7:[`Rab 8 Jul`,`03.00`,`BC Place, Vancouver`],
   qf_0:[`Jum 10 Jul`,`03.00`,`Boston Stadium`],
   qf_1:[`Sab 11 Jul`,`02.00`,`Los Angeles Stadium`],
-  qf_2:[`Ming 12 Jul`,`03.00`,`Miami Stadium`],
+  qf_2:[`Ming 12 Jul`,`04.00`,`Miami Stadium`],
   qf_3:[`Ming 12 Jul`,`08.00`,`Kansas City Stadium`],
   sf_0:[`Rab 15 Jul`,`02.00`,`Dallas Stadium`],
   sf_1:[`Kam 16 Jul`,`02.00`,`Atlanta Stadium`],
@@ -660,7 +660,7 @@ function getQual(){const auto=[],p3=[];GROUPS.forEach(g=>{if(!grpDone(g.id))retu
 
 const BRACKET_TREE=[['r16',0,'r32',0,1],['r16',1,'r32',2,3],['r16',2,'r32',4,5],['r16',3,'r32',6,7],['r16',4,'r32',8,9],['r16',5,'r32',10,11],['r16',6,'r32',12,13],['r16',7,'r32',14,15],['qf',0,'r16',0,1],['qf',1,'r16',2,3],['qf',2,'r16',4,5],['qf',3,'r16',6,7],['sf',0,'qf',0,1],['sf',1,'qf',2,3],['final',0,'sf',0,1]];
 function getMatchWinner(rnd,idx){const k=`${rnd}_${idx}`;const nm=ST.koN[k]||{};const sc=ST.ko[k]||{};if(nm.hn&&nm.an&&sc.h!==''&&sc.a!==''){const h=parseInt(sc.h)||0,a=parseInt(sc.a)||0;if(h>a)return{n:nm.hn,cc:nm.hcc||gCC(nm.hn)};if(a>h)return{n:nm.an,cc:nm.acc||gCC(nm.an)};}return null;}
-function propagateWinners(){BRACKET_TREE.forEach(([pR,pI,fR,fA,fB])=>{const wA=getMatchWinner(fR,fA),wB=getMatchWinner(fR,fB);const k=`${pR}_${pI}`;if(!ST.koN[k])ST.koN[k]={hn:'',hcc:'',an:'',acc:'',_auto:true};if(ST.koN[k]._auto!==false){if(wA){ST.koN[k].hn=wA.n;ST.koN[k].hcc=wA.cc;}if(wB){ST.koN[k].an=wB.n;ST.koN[k].acc=wB.cc;}}});const fw=getMatchWinner('final',0);if(fw&&(!ST.ko.champion||ST.ko.champion._auto!==false))ST.ko.champion={name:fw.n,cc:fw.cc,_auto:true};}
+function propagateWinners(){BRACKET_TREE.forEach(([pR,pI,fR,fA,fB])=>{const wA=getMatchWinner(fR,fA),wB=getMatchWinner(fR,fB);const k=`${pR}_${pI}`;if(!ST.koN[k])ST.koN[k]={hn:'',hcc:'',an:'',acc:'',_auto:true};}if(ST.koN[k]._auto!==false){if(wA){ST.koN[k].hn=wA.n;ST.koN[k].hcc=wA.cc;}else{ST.koN[k].hn='';ST.koN[k].hcc='';}if(wB){ST.koN[k].an=wB.n;ST.koN[k].acc=wB.cc;}else{ST.koN[k].an='';ST.koN[k].acc='';}}});const fw=getMatchWinner('final',0);if(fw&&(!ST.ko.champion||ST.ko.champion._auto!==false))ST.ko.champion={name:fw.n,cc:fw.cc,_auto:true};}}
 function computeKoN(){const{auto,best8}=getQual();if(!auto.length&&!best8.length)return;const q=[...auto.filter(t=>t.pos===1),...auto.filter(t=>t.pos===2),...best8];for(let i=0;i<16;i++){const k=`r32_${i}`,t1=q[i]||null,t2=q[i+16]||null;if(!ST.koN[k]||ST.koN[k]._auto!==false)ST.koN[k]={hn:t1?t1.n:'',hcc:t1?t1.cc:'',an:t2?t2.n:'',acc:t2?t2.cc:'',_auto:true};}propagateWinners();save();}
 
 function formDots(form,n=5){const f=form.slice(-n);const d=[];for(let i=0;i<n;i++){const r=f[i];d.push(`<span class="fd ${r==='W'?'fd-w':r==='D'?'fd-d':r==='L'?'fd-l':'fd-x'}"></span>`);}return`<div class="form-dots">${d.join('')}</div>`;}
