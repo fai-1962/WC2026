@@ -737,6 +737,7 @@ function renderKOMatches(){
       const d2=ready&&sc.h!==''&&sc.a!=='';
       const hg=d2?parseInt(sc.h)||0:null,ag2=d2?parseInt(sc.a)||0:null;
       const pd2=d2&&hg===ag2,ph=pd2?(parseInt(sc.ph)||0):null,pa=pd2?(parseInt(sc.pa)||0):null;
+      const totalH=penDone?hg+ph:hg,totalA=penDone?ag2+pa:ag2;
       const penDone=pd2&&sc.ph!==''&&sc.pa!=='';
       const finished=d2&&(!pd2||penDone);
       const hw=d2&&(hg>ag2||(penDone&&hg===ag2&&ph>pa)),aw=d2&&(ag2>hg||(penDone&&hg===ag2&&pa>ph));
@@ -750,7 +751,7 @@ function renderKOMatches(){
         <div class="match-body">
           <div class="match-team ${hw?'match-winner':''}">${m.h.cc?fiRect(m.h.cc):`<span style="width:28px;height:20px;display:inline-block;"></span>`}<div class="match-name">${m.h.n}</div></div>
           <div class="match-center">
-            <div class="vs-badge" style="background:${rnd.color};">${d2?`<span style="font-size:12px;font-weight:900;">${hg}–${ag2}</span>${penDone?`<div style="font-size:9px;font-weight:700;margin-top:2px;">Pen ${ph}-${pa}</div>`:''}`:'VS'}</div>
+            <div class="vs-badge" style="background:${rnd.color};">${d2?`<span style="font-size:12px;font-weight:900;">${totalH}–${totalA}</span>${penDone?`<div style="font-size:9px;font-weight:700;margin-top:2px;">(${hg}-${ag2} Pen ${ph}-${pa})</div>`:''}`:'VS'}</div>
             <div class="score-row" onclick="event.stopPropagation()">
               <input class="score-inp" type="number" min="0" max="99" value="${sc.h||''}" placeholder="–" ${ready?'':'disabled'} onchange="setUniversalSc('${rnd.id}',${i},'h',this.value)" onclick="event.stopPropagation()">
               <span class="score-sep">:</span>
