@@ -737,8 +737,8 @@ function renderKOMatches(){
       const d2=ready&&sc.h!==''&&sc.a!=='';
       const hg=d2?parseInt(sc.h)||0:null,ag2=d2?parseInt(sc.a)||0:null;
       const pd2=d2&&hg===ag2,ph=pd2?(parseInt(sc.ph)||0):null,pa=pd2?(parseInt(sc.pa)||0):null;
-      const totalH=penDone?hg+ph:hg,totalA=penDone?ag2+pa:ag2;
       const penDone=pd2&&sc.ph!==''&&sc.pa!=='';
+      const totalH=penDone?hg+ph:hg,totalA=penDone?ag2+pa:ag2;
       const finished=d2&&(!pd2||penDone);
       const hw=d2&&(hg>ag2||(penDone&&hg===ag2&&ph>pa)),aw=d2&&(ag2>hg||(penDone&&hg===ag2&&pa>ph));
       const [d,t,s]=m.sch;
