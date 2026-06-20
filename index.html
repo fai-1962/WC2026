@@ -21,6 +21,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #subNav{background:#fff;padding:8px 12px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
 .grp-btn{min-width:32px;height:28px;padding:0 8px;border:1.5px solid #ddd;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:#666;background:#fff;}
 .grp-btn.active{color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.award-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.award-title{font-size:15px;font-weight:700;margin-bottom:10px;color:#333;}
 
 /* MATCH CARD */
 .match-card{background:#fff;border:1px solid #e0e8f5;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 8px rgba(26,115,232,.08);cursor:pointer;transition:transform .15s,box-shadow .15s;}
@@ -291,6 +293,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="sw('standings')">Klasemen</button>
   <button class="tab" onclick="sw('knockout')">Babak Gugur</button>
   <button class="tab" onclick="sw('stats')">Statistik</button>
+  <button class="tab" onclick="sw('awards')">🏅 Penghargaan</button>
 </div>
 <div id="subNav"></div>
 </div>
@@ -305,6 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="bracket-outer"><div class="bracket-grid" id="bracket"></div></div>
 </div>
 <div id="view-stats" class="view"><div id="statsBody"></div></div>
+<div id="view-awards" class='view><div id="awardsBody"></div></div>
 
 <!-- MODAL — pakai class toggle, bukan display toggle -->
 <div class="modal-overlay" id="modalOverlay">
@@ -963,6 +967,28 @@ function renderStatsHTML(data,m,gid,idx,done,hg,ag){
   </div>
   <div style="font-size:9px;color:#bbb;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #eee;">✨ Dihasilkan Claude AI · Simulasi realistis</div>`;
 }
+function renderAwards(){
+const champion=getMatchWinner('final',0);
+const runnerUp=getMatchLoser('final',0);
+const third=getMatchWinner('third',0);
+const fourth=getMatchLoser('third',0);
+document.getElementById('awardsBody').innerHTML=`
+<div class="award-card">
+<div class="award-title">🏆 Penghargaan Tim</div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+<div>🥇 Champion : ${champion?champion.n:'-'}</div>
+<div>🥈 Runner-up : ${runnerUp?runnerUp.n:'-'}</div>
+<div>🥉 Peringkat 3 : ${third?third.n:'-'}</div>
+<div>🏅 Peringkat 4 : ${fourth?fourth.n:'-'}</div>
+</div>
+</div>
+<div class="award-card">
+<div class="award-title">⭐ Team of the Tournament</div>
+<div style="padding:20px;text-align:center;color:#888;">
+Belum ditentukan
+</div>
+</div>`;
+}
 
 // ── API KEY MANAGEMENT ──
 function getProvider(){ return localStorage.getItem('wc26_provider')||'groq'; }
@@ -1299,7 +1325,7 @@ function rmPlayer(type,rank){const sorted=(ST.players[type]||[]).slice().sort((a
 function setAST(id){ST.ast=id;save();renderStats();}
 
 function resetAll(){if(confirm('Reset semua data?')){ST.scores={};ST.ko={};ST.koN={};ST.matchStats={};STAT_TYPES.forEach(t=>{ST.players[t.id]=[...(PREFILL[t.id]||[])];});save();renderMatchNav();renderMatches();renderStNav();renderStandings();renderBracket();renderQualPanel();renderStats();toast('✅ Reset selesai');}}
-function sw(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['matches','standings','knockout','stats'][i]===tab));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+tab).classList.add('active');document.getElementById('subNav').innerHTML='';if(tab==='matches')renderMatchNav();if(tab==='standings'){renderStNav();renderStandings();}if(tab==='knockout'){computeKoN();renderBracket();renderQualPanel();}if(tab==='stats')renderStats();}
+function sw(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['matches','standings','knockout','stats','awards'][i]===tab));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+tab).classList.add('active');document.getElementById('subNav').innerHTML='';if(tab==='matches')renderMatchNav();if(tab==='standings'){renderStNav();renderStandings();}if(tab==='knockout'){computeKoN();renderBracket();renderQualPanel();}if(tab==='stats')renderStats();if(tab==='awards')renderAwards();}
 
 // ── INIT ──
 (function(){
