@@ -292,7 +292,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="sw('knockout')">Babak Gugur</button>
   <button class="tab" onclick="sw('stats')">Statistik</button>
 </div>
-<div id-"subNav"></div>
+<div id="subNav"></div>
 </div>
 <div id="view-matches" class="view active"><div id="matchBody"></div></div>
 <div id="view-standings" class="view">
@@ -1314,7 +1314,7 @@ function sw(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.to
     updateApiStatus(k);
   }
 })();
-computeKoN();renderMatchNav();renderMatches();renderStNav();
+computeKoN();renderMatches();renderStandings();sw('matches');
 initFirebaseSync();
 </script>
 </body>
