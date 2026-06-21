@@ -23,12 +23,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .grp-btn.active{color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.2);}
 .award-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
 .champion-podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-top:20px;flex-wrap:wrap;}
-.podium-box{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:90px;padding:12px 10px;broder-radius:12px 12px 0 0;color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.15);position:relative;}
+.podium-box{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:90px;padding:12px 10px;border-radius:12px 12px 0 0;color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.15);position:relative;}
 .podium-box::after{content:'';position:absolute;bottom:-24px;left:0;width:100%;height:24px;background:rgba(0,0,0,.08);border-radius:0 0 10px 10px;}
 .podium-1{height:160px;background:linear-gradient(180deg,#ffd54f,#f9a825);}
 .podium-2{height:125px;background:linear-gradient(180deg,#e0e0e0,#9e9e9e);}
 .podium-3{height:105px;background:linear-gradient(180deg,#d7a86e,#8d6e63);}
 .podium-4{height:70px;background:linear-gradient(180deg,#90caf9,#1e88e5);}
+.podium-main{display:flex;justify-content:center;align-items:flex-end;gap:20px;flex-wrap:wrap;}
+.podium-fourth{display:flex;justify-content:center;margin-top:30px;}
+.podium-country{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:12px;}
+.podium-country-name{font-size:14px;font-weight:800;color:#333;text-align:center;}
+.podium-box{width:120px;}
+.podium-1{width:140px;}
 .podium-rank{font-size:24px;margin-bottom:8px;}
 .podium-team{font-size:13px;font-weight:800;text-align:center;line-height:1.2;}
 .podium-label{font-size:10px;opacity:.85;margin-top:4px;text-align:center;}
@@ -262,6 +268,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .events-grid,.lineups-wrap{grid-template-columns:1fr;}
   .modal-flag{width:58px;height:39px;}
   .modal-score-num{font-size:22px;}
+  .podium-main{gap:10px;}
+  .podium-box{width:90px;}
+  .podium-1{width:110px;}
+  .podium-country-name{font-size:12px;}
+  .podium-rank{font-size:20px:}
+  .podium-team{font-size:11px;}
+  .podium-label{font-size:9px;}
+  .podium-fourt{margin-top:20px;}
 }
 @media(max-width:360px){.stgrid{grid-template-columns:1fr;}}
 </style>
@@ -308,7 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="sw('standings')">Klasemen</button>
   <button class="tab" onclick="sw('knockout')">Babak Gugur</button>
   <button class="tab" onclick="sw('stats')">Statistik</button>
-  <button class="tab" onclick="sw('awards')">🏅 Penghargaan</button>
+  <button class="tab" onclick="sw('awards')">Penghargaan</button>
 </div>
 <div id="subNav"></div>
 </div>
@@ -1012,25 +1026,49 @@ if(ST.awardTab==='champion'){
   <div class="award-card">
     <div class="award-title">🎖 Champion</div>
     <div class="champion-podium">
-  <div class="podium-box podium-2">
-    <div class="podium-rank">🥈</div>
-    <div class="podium-team">${runnerUp?runnerUp.n:'-'}</div>
-    <div class="podium-label">Runner-up</div>
+  <div class="podium-main">
+    <div class="podium-country">
+      ${runnerUp&&runnerUp.cc ? fiRect(runnerUp.cc) : ''}
+      <div class="podium-country-name">
+        ${runnerUp?runnerUp.n:'-'}
+      </div>
+      <div class="podium-box podium-2">
+        <div class="podium-rank">🥈</div>
+        <div class="podium-label">Runner-up</div>
+      </div>
+    </div>
+    <div class="podium-country">
+      ${champion&&champion.cc ? fiRect(champion.cc) : ''}
+      <div class="podium-country-name">
+        ${champion?champion.n:'-'}
+      </div>
+      <div class="podium-box podium-1">
+        <div class="podium-rank">🏆</div>
+        <div class="podium-label">Champion</div>
+      </div>
+    </div>
+    <div class="podium-country">
+      ${third&&third.cc ? fiRect(third.cc) : ''}
+      <div class="podium-country-name">
+        ${third?third.n:'-'}
+      </div>
+      <div class="podium-box podium-3">
+        <div class="podium-rank">🥉</div>
+        <div class="podium-label">Third Place</div>
+      </div>
+    </div>
   </div>
-  <div class="podium-box podium-1">
-    <div class="podium-rank">🏆</div>
-    <div class="podium-team">${champion?champion.n:'-'}</div>
-    <div class="podium-label">Champion</div>
-  </div>
-  <div class="podium-box podium-3">
-    <div class="podium-rank">🥉</div>
-    <div class="podium-team">${third?third.n:'-'}</div>
-    <div class="podium-label">Third Place</div>
-  </div>
-  <div class="podium-box podium-4">
-    <div class="podium-rank">🏅</div>
-    <div class="podium-team">${fourth?fourth.n:'-'}</div>
-    <div class="podium-label">Fourth Place</div>
+  <div class="podium-fourth">
+    <div class="podium-country">
+      ${fourth&&fourth.cc ? fiRect(fourth.cc) : ''}
+      <div class="podium-country-name">
+        ${fourth?fourth.n:'-'}
+      </div>
+      <div class="podium-box podium-4">
+        <div class="podium-rank">🏅</div>
+        <div class="podium-label">Fourth Place</div>
+      </div>
+    </div>
   </div>
 </div>
   </div>`;
