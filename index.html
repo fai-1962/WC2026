@@ -557,7 +557,7 @@ const SQUADS = {
 
 const PREFILL={scorer:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Harry Kane',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Erling Haaland',team:'Norwegia',cc:'no',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Cristiano Ronaldo',team:'Portugal',cc:'pt',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Vinícius Jr.',team:'Brasil',cc:'br',val:0,pre:true},{name:'Kai Havertz',team:'Jerman',cc:'de',val:0,pre:true}],assist:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Bukayo Saka',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Bruno Fernandes',team:'Portugal',cc:'pt',val:0,pre:true}],motm:[{name:'Kylian Mbappé',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Lionel Messi',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Lamine Yamal',team:'Spanyol',cc:'es',val:0,pre:true}],save:[{name:'Emiliano Martínez',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Unai Simón',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Alisson Becker',team:'Brasil',cc:'br',val:0,pre:true},{name:'Mike Maignan',team:'Prancis',cc:'fr',val:0,pre:true},{name:'Jordan Pickford',team:'Inggris',cc:'gb-eng',val:0,pre:true},{name:'Thibaut Courtois',team:'Belgia',cc:'be',val:0,pre:true}],clean:[{name:'Emiliano Martínez',team:'Argentina',cc:'ar',val:0,pre:true},{name:'Unai Simón',team:'Spanyol',cc:'es',val:0,pre:true},{name:'Alisson Becker',team:'Brasil',cc:'br',val:0,pre:true}],yellow:[],red:[]};
 
-let ST={ag:'A',asg:'ALL',ast:'scorer',scores:{},ko:{},koN:{},players:{},matchStats:{}};
+let ST={ag:'A',asg:'ALL',ast:'scorer',awardTab:'champion',scores:{},ko:{},koN:{},players:{},matchStats:{}};
 try{const d=localStorage.getItem('wc26v15');if(d){const p=JSON.parse(d);Object.assign(ST,p);}}catch(e){}
 STAT_TYPES.forEach(t=>{if(!ST.players[t.id])ST.players[t.id]=[...(PREFILL[t.id]||[])];});
 if(!ST.matchStats)ST.matchStats={};
@@ -900,6 +900,7 @@ function renderStandings(){
 }
 function renderP3(){const{p3}=getQual();if(!p3.length){document.getElementById('p3Section').innerHTML='';return;}let h=`<div class="p3card"><div class="p3hd"><span>🟢 Peringkat 3 Terbaik (${p3.length}/12)</span><span style="font-size:8px;">${p3.length===12?'✓ Final':'⚠ Sementara'}</span></div><table class="compact-table" style="background:#fff;"><thead><tr><th>#</th><th style="text-align:left;">Tim</th><th>Grp</th><th>M</th><th>SG</th><th>Pts</th><th>Forma</th><th>Status</th></tr></thead><tbody>`;p3.forEach((t,i)=>{const l=i<8;h+=`<tr style="${l?'background:rgba(52,168,83,.04)':''}"><td><span class="pb ${l?'pb3':'pb4'}">${i+1}</span></td><td><div class="tc">${fi(t.cc,'fi fi-xs')}<span style="font-size:10px;">${t.n}</span></div></td><td><span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${t.grpColor};color:#fff;">${t.grp}</span></td><td>${t.mp}</td><td style="font-weight:700;color:${t.gd>0?'#1a7a4a':t.gd<0?'#c62828':'#888'};">${t.gd>0?'+':''}${t.gd}</td><td><strong>${t.pts}</strong></td><td>${formDots(t.form)}</td><td><span style="font-size:9px;padding:1px 5px;border-radius:999px;background:${l?'#34a853':'#eee'};color:${l?'#fff':'#888'};">${l?'✓':'Gugur'}</span></td></tr>`;});h+=`</tbody></table></div>`;if(p3.length<12)h+=`<div style="font-size:10px;color:#b45309;margin-top:5px;">⚠️ Sementara — ${12-p3.length} grup belum selesai</div>`;document.getElementById('p3Section').innerHTML=h;}
 function setASG(id){ST.asg=id;save();renderStNav();renderStandings();}
+function setAwardTab(tab){ST.awardTab=tab;save();renderAwards();}
 
 // ── KNOCKOUT ──
 function renderQualPanel(){const{auto,p3,best8}=getQual();const done=doneCount(),pct=Math.round(done/12*100),total=auto.length+best8.length;let h=`<div class="qpanel"><div style="font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">🎯 Kualifikasi <span style="font-size:10px;color:#888;font-weight:400;">${done}/12 grup selesai</span></div><div class="qprog"><div class="qbar" style="width:${pct}%"></div></div>`;if(!total){h+=`<div style="font-size:11px;color:#888;">Isi skor di tab Pertandingan untuk mengisi bracket otomatis.</div>`;}else{h+=`<div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">✅ Juara & Runner-Up (${auto.length}/24)</div><div style="margin-bottom:8px;">`;GROUPS.forEach(g=>{if(!grpDone(g.id)){h+=`<span class="qchip pd">${g.id}?</span>`.repeat(2);}else{const st=calcSt(g.id);[0,1].forEach(i=>h+=`<span class="qchip">${fi(st[i].cc,'fi fi-xs')}<span>${st[i].n}</span><span class="qbadge" style="background:${g.color};color:#fff;">${g.id}${i===0?'①':'②'}</span></span>`); }});h+=`</div><div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">🟢 Peringkat 3 (${best8.length}/8)</div><div>`;p3.forEach((t,i)=>{const l=i<8;h+=`<span class="qchip ${l?'p3c':''}">${fi(t.cc,'fi fi-xs')}<span>${t.n}</span><span class="qbadge" style="background:${l?'#34a853':'#eee'};color:${l?'#fff':'#888'};">${t.grp} ${t.pts}p</span></span>`;});h+=`</div>`;}const adv=Object.entries(ST.koN).filter(([k,v])=>v&&v.hn&&!k.startsWith('r32')).length;h+=`<div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;"><button class="btn-fill" onclick="doFill()">🔄 Isi/Perbarui dari Fase Grup</button>${total?`<span style="font-size:10px;color:#34a853;">✓ ${total} tim${adv?` · ${adv} advanced`:''}</span>`:''}</div><div style="font-size:10px;color:#888;margin-top:5px;">Pemenang otomatis naik ke babak berikutnya.</div></div>`;document.getElementById('qualPanel').innerHTML=h;}
@@ -973,11 +974,27 @@ function renderStatsHTML(data,m,gid,idx,done,hg,ag){
   <div style="font-size:9px;color:#bbb;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #eee;">✨ Dihasilkan Claude AI · Simulasi realistis</div>`;
 }
 function renderAwards(){
+let subNav=`
+<div class="grp-nav">
+  <button class="grp-btn ${ST.awardTab==='champion'?'active':''}"
+    onclick="setAwardTab('champion')">
+    🏆 Champion
+  </button>
+  <button class="grp-btn ${ST.awardTab==='team'?'active':''}"
+    onclick="setAwardTab('team')">
+    ⭐ Team of Tournament
+  </button>
+  <button class="grp-btn ${ST.awardTab==='individual'?'active':''}"
+    onclick="setAwardTab('individual')">
+    👤 Individual Awards
+  </button>
+</div>`;
 const champion=getMatchWinner('final',0);
 const runnerUp=getMatchLoser('final',0);
 const third=getMatchWinner('third',0);
 const fourth=getMatchLoser('third',0);
 document.getElementById('awardsBody').innerHTML=`
+${subNav}
 <div class="award-card">
 <div class="award-title">🏆 Penghargaan Tim</div>
 <div style="display:flex;flex-direction:column;gap:10px;">
