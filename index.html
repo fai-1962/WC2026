@@ -1028,9 +1028,9 @@ if(ST.awardTab==='champion'){
     <div class="champion-podium">
   <div class="podium-main">
     <div class="podium-country">
-      ${runnerUp&&runnerUp.cc ? fiRect(runnerUp.cc) : ''}
+      ${runnerUp&&runnerUp.cc ? fiRect(runnerUp.cc) : `<div class="match-flag" style="background:#e0e0e0;"></div>`}
       <div class="podium-country-name">
-        ${runnerUp?runnerUp.n:'-'}
+        ${runnerUp?runnerUp.n:'TBA'}
       </div>
       <div class="podium-box podium-2">
         <div class="podium-rank">🥈</div>
@@ -1038,9 +1038,9 @@ if(ST.awardTab==='champion'){
       </div>
     </div>
     <div class="podium-country">
-      ${champion&&champion.cc ? fiRect(champion.cc) : ''}
+      ${champion&&champion.cc ? fiRect(champion.cc) : `<div class="match-flag" style="background:#e0e0e0;"></div>`}
       <div class="podium-country-name">
-        ${champion?champion.n:'-'}
+        ${champion?champion.n:'TBA'}
       </div>
       <div class="podium-box podium-1">
         <div class="podium-rank">🏆</div>
@@ -1048,9 +1048,9 @@ if(ST.awardTab==='champion'){
       </div>
     </div>
     <div class="podium-country">
-      ${third&&third.cc ? fiRect(third.cc) : ''}
+      ${third&&third.cc ? fiRect(third.cc) : `<div class="match-flag" style="background:#e0e0e0;"></div>`}
       <div class="podium-country-name">
-        ${third?third.n:'-'}
+        ${third?third.n:'TBA'}
       </div>
       <div class="podium-box podium-3">
         <div class="podium-rank">🥉</div>
@@ -1060,9 +1060,9 @@ if(ST.awardTab==='champion'){
   </div>
   <div class="podium-fourth">
     <div class="podium-country">
-      ${fourth&&fourth.cc ? fiRect(fourth.cc) : ''}
+      ${fourth&&fourth.cc ? fiRect(fourth.cc) : `<div class="match-flag" style="background:#e0e0e0;"></div>`}
       <div class="podium-country-name">
-        ${fourth?fourth.n:'-'}
+        ${fourth?fourth.n:'TBA'}
       </div>
       <div class="podium-box podium-4">
         <div class="podium-rank">🏅</div>
