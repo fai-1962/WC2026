@@ -715,13 +715,7 @@ function calcSt(gid){
 }
 function calcStFIFA(gid,extraMatches=[]){
     const grp=GROUPS.find(g=>g.id===gid);
-    const ts=grp.teams.map(t=>({
-        ...t,
-        mp:0,w:0,d:0,l:0,
-        gf:0,ga:0,gd:0,
-        pts:0,
-        form:[]
-    }));
+    const ts=grp.teams.map(t=>({...t,mp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,form:[]}));
     const tm2={};
     grp.teams.forEach(t=>tm2[t.n]=[]);
     gm(gid).forEach((m,i)=>{
