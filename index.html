@@ -740,7 +740,7 @@ function calcStFIFA(gid,extraMatches=[]){
         applyMatch(ts,hi,ai,m.hg,m.ag,tm2);
     });
     ts.forEach(t=>t.form=tm2[t.n]||[]);
-    return sortFIFA(ts,gid);;
+    return sortFIFA(ts,gid);
 }
 function sortFIFA(ts,gid){const ptsGroups={};ts.forEach(t=>{if(!ptsGroups[t.pts])ptsGroups[t.pts]=[];ptsGroups[t.pts].push(t);});const res=[];Object.keys(ptsGroups).sort((a,b)=>b-a).forEach(pts=>{const grp=ptsGroups[pts];if(grp.length===1){res.push(grp[0]);}else{const names=grp.map(t=>t.n);const h2h=headToHeadTable(gid,names);grp.sort((a,b)=>h2h[b.n].pts-h2h[a.n].pts||h2h[b.n].gd-h2h[a.n].gd||h2h[b.n].gf-h2h[a.n].gf||b.gd-a.gd||b.gf-a.gf);res.push(...grp);}});return res;}
 function testFIFA(gid){console.table(calcStFIFA(gid));}
