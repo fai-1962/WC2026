@@ -706,7 +706,7 @@ function calcSt(gid){
 }
 const grpDone=gid=>MU.every((_,i)=>{const sc=ST.scores[`${gid}_${i}`];return sc&&sc.h!==''&&sc.a!=='';});
 const doneCount=()=>GROUPS.filter(g=>grpDone(g.id)).length;
-function getQual(){const auto=[],p3=[];GROUPS.forEach(g=>{if(!grpDone(g.id))return;const st=calcSt(g.id);auto.push({...st[0],pos:1,grp:g.id,grpColor:g.color});auto.push({...st[1],pos:2,grp:g.id,grpColor:g.color});p3.push({...st[2],pos:3,grp:g.id,grpColor:g.color});});p3.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);return{auto,p3,best8:p3.slice(0,8)};}
+function getQual(){const auto=[],p3=[];GROUPS.forEach(g=>{const st=calcSt(g.id);if(grpDone(g.id)){auto.push({...st[0],pos:1,grp:g.id,grpColor:g.color});auto.push({...st[1],pos:2,grp:g.id,grpColor:g.color});}p3.push({...st[2],pos:3,grp:g.id,grpColor:g.color});});p3.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);return{auto,p3,best8:p3.slice(0,8)};}
 
 const BRACKET_TREE=[['r16',0,'r32',0,1],['r16',1,'r32',2,3],['r16',2,'r32',4,5],['r16',3,'r32',6,7],['r16',4,'r32',8,9],['r16',5,'r32',10,11],['r16',6,'r32',12,13],['r16',7,'r32',14,15],['qf',0,'r16',0,1],['qf',1,'r16',2,3],['qf',2,'r16',4,5],['qf',3,'r16',6,7],['sf',0,'qf',0,1],['sf',1,'qf',2,3],['final',0,'sf',0,1]];
 function getMatchWinner(rnd,idx){const k=`${rnd}_${idx}`;const nm=ST.koN[k]||{};const sc=ST.ko[k]||{};if(nm.hn&&nm.an&&sc.h!==''&&sc.a!==''){const h=parseInt(sc.h)||0,a=parseInt(sc.a)||0,ph=parseInt(sc.ph)||0,pa=parseInt(sc.pa)||0;if(h>a)return{n:nm.hn,cc:nm.hcc||gCC(nm.hn)};if(a>h)return{n:nm.an,cc:nm.acc||gCC(nm.an)};if(h===a&&sc.ph!==''&&sc.pa!==''){if(ph>pa)return{n:nm.hn,cc:nm.hcc||gCC(nm.hn)};if(pa>ph)return{n:nm.an,cc:nm.acc||gCC(nm.an)};}}return null;}
