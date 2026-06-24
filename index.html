@@ -541,7 +541,7 @@ function headToHeadRank(gid,teams){const tbl=headToHeadTable(gid,teams);return [
 function remainingCount(gid){return getRemainingMatches(gid).length;}
 function getRemainingScenarioCount(gid){return Math.pow(3,remainingCount(gid));}
 function generateRemainingOutcomes(gid){const n=remainingCount(gid);const res=[[]];for(let i=0;i<n;i++){const next=[];res.forEach(r=>{next.push([...r,'W']);next.push([...r,'D']);next.push([...r,'L']);});res.splice(0,res.length,...next);}return res;}
-function simulateOutcome(gid,outcome){const st=calcSt(gid).map(t=>({...t})),rem=getRemainingMatches(gid);outcome.forEach((r,i)=>{const m=rem[i],h=st.find(t=>t.n===m.h.n),a=st.find(t=>t.n===m.a.n);if(r==='W'){h.mp++;a.mp++;h.w++;a.l++;h.gf++;a.ga++;h.gd++;a.gd--;h.pts+=3;}else if(r==='L'){h.mp++;a.mp++;a.w++;h.l++;a.gf++;h.ga++;a.gd++;h.gd--;a.pts+=3;}else{h.mp++;a.mp++;h.d++;a.d++;h.gf++;h.ga++;a.gf++;a.ga++;h.pts++;a.pts++;}});return st.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);}
+function simulateOutcome(gid,outcome){const rem=getRemainingMatches(gid),extraMatches=[];outcome.forEach((r,i)=>{const m=rem[i];if(r==='W'){extraMatches.push({h:m.h.n,a:m.a.n,hg:1,ag:0});}else if(r==='L'){extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:1});}else{extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:0});}});return calcStFIFA(gid,extraMatches);}
 function maxPtsTable(gid){const st=calcSt(gid),rem=getRemainingMatches(gid);return st.map(t=>{const left=rem.filter(m=>m.h.n===t.n||m.a.n===t.n).length;return{n:t.n,pts:t.pts,maxPts:t.pts+3*left};});}
 function isLockedFirst(gid){const tbl=maxPtsTable(gid).sort((a,b)=>b.pts-a.pts);return tbl[0].pts>tbl[1].maxPts;}
 function lockedFirstTeam(gid){const st=calcSt(gid);return isLockedFirst(gid)?st[0]:null;}
@@ -738,7 +738,7 @@ function calcStFIFA(gid,extraMatches=[]){
 }
 function sortFIFA(ts,gid){const ptsGroups={};ts.forEach(t=>{if(!ptsGroups[t.pts])ptsGroups[t.pts]=[];ptsGroups[t.pts].push(t);});const res=[];Object.keys(ptsGroups).sort((a,b)=>b-a).forEach(pts=>{const grp=ptsGroups[pts];if(grp.length===1){res.push(grp[0]);}else{const names=grp.map(t=>t.n);const h2h=headToHeadTable(gid,names);grp.sort((a,b)=>h2h[b.n].pts-h2h[a.n].pts||h2h[b.n].gd-h2h[a.n].gd||h2h[b.n].gf-h2h[a.n].gf||b.gd-a.gd||b.gf-a.gf);res.push(...grp);}});return res;}
 function testFIFA(gid){console.table(calcStFIFA(gid));}
-function allFinalTables(gid){const outcomes=generateRemainingOutcomes(gid),rem=getRemainingMatches(gid);return outcomes.map(outcome=>{const extraMatches=[];outcome.forEach((r,i)=>{const m=rem[i];if(r==='W'){extraMatches.push({h:m.h.n,a:m.a.n,hg:1,ag:0});}else if(r==='L'){extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:1});}else{extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:0});}});return calcStFIFA(gid,extraMatches);});}
+function allFinalTables(gid){const outcomes=generateRemainingOutcomes(gid);return outcomes.map(outcome=>simulateOutcome(gid,outcome));}
 function lockedPosition(gid,pos){const tables=allFinalTables(gid);if(!tables.length)return null;const first=tables[0][pos-1];const locked=tables.every(tb=>tb[pos-1].n===first.n);return locked?first:null;}
 function testLocked(gid){console.log('1st',lockedPosition(gid,1));console.log('2nd',lockedPosition(gid,2));}
    
