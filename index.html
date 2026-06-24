@@ -533,6 +533,18 @@ const GROUPS=[
 const ALL_TEAMS=GROUPS.flatMap(g=>g.teams);
 const MU=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
 const gm=id=>{const t=GROUPS.find(g=>g.id===id).teams;return MU.map((p,i)=>({h:t[p[0]],a:t[p[1]],sch:SCHED[id][i]}));};
+function getRemainingMatches(gid){return gm(gid).filter((m,i)=>{const sc=ST.scores[`${gid}_${i}`];return !(sc&&sc.h!==''&&sc.a!==''&&sc.h!=null);});}
+function getPlayedMatches(gid){return gm(gid).filter((m,i)=>{const sc=ST.scores[`${gid}_${i}`];return sc&&sc.h!==''&&sc.a!==''&&sc.h!=null;});}
+function getPlayedMatchesWithScores(gid){return gm(gid).flatMap((m,i)=>{const sc=ST.scores[`${gid}_${i}`];if(sc&&sc.h!==''&&sc.a!==''&&sc.h!=null){return[{h:m.h.n,a:m.a.n,hg:parseInt(sc.h)||0,ag:parseInt(sc.a)||0}];}return[];});}
+function headToHeadTable(gid,teams){const ms=getPlayedMatchesWithScores(gid).filter(m=>teams.includes(m.h)&&teams.includes(m.a));const tbl={};teams.forEach(t=>{tbl[t]={pts:0,gf:0,ga:0,gd:0};});ms.forEach(m=>{tbl[m.h].gf+=m.hg;tbl[m.h].ga+=m.ag;tbl[m.h].gd+=m.hg-m.ag;tbl[m.a].gf+=m.ag;tbl[m.a].ga+=m.hg;tbl[m.a].gd+=m.ag-m.hg;if(m.hg>m.ag){tbl[m.h].pts+=3;}else if(m.hg<m.ag){tbl[m.a].pts+=3;}else{tbl[m.h].pts++;tbl[m.a].pts++;}});return tbl;}
+function headToHeadRank(gid,teams){const tbl=headToHeadTable(gid,teams);return [...teams].sort((a,b)=>tbl[b].pts-tbl[a].pts||tbl[b].gd-tbl[a].gd||tbl[b].gf-tbl[a].gf);}
+function remainingCount(gid){return getRemainingMatches(gid).length;}
+function getRemainingScenarioCount(gid){return Math.pow(3,remainingCount(gid));}
+function generateRemainingOutcomes(gid){const n=remainingCount(gid);const res=[[]];for(let i=0;i<n;i++){const next=[];res.forEach(r=>{next.push([...r,'W']);next.push([...r,'D']);next.push([...r,'L']);});res.splice(0,res.length,...next);}return res;}
+function simulateOutcome(gid,outcome){const st=calcSt(gid).map(t=>({...t})),rem=getRemainingMatches(gid);outcome.forEach((r,i)=>{const m=rem[i],h=st.find(t=>t.n===m.h.n),a=st.find(t=>t.n===m.a.n);if(r==='W'){h.mp++;a.mp++;h.w++;a.l++;h.gf++;a.ga++;h.gd++;a.gd--;h.pts+=3;}else if(r==='L'){h.mp++;a.mp++;a.w++;h.l++;a.gf++;h.ga++;a.gd++;h.gd--;a.pts+=3;}else{h.mp++;a.mp++;h.d++;a.d++;h.gf++;h.ga++;a.gf++;a.ga++;h.pts++;a.pts++;}});return st.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);}
+function maxPtsTable(gid){const st=calcSt(gid),rem=getRemainingMatches(gid);return st.map(t=>{const left=rem.filter(m=>m.h.n===t.n||m.a.n===t.n).length;return{n:t.n,pts:t.pts,maxPts:t.pts+3*left};});}
+function isLockedFirst(gid){const tbl=maxPtsTable(gid).sort((a,b)=>b.pts-a.pts);return tbl[0].pts>tbl[1].maxPts;}
+function lockedFirstTeam(gid){const st=calcSt(gid);return isLockedFirst(gid)?st[0]:null;}
 const TM={};GROUPS.forEach(g=>g.teams.forEach(t=>{TM[t.n.toLowerCase()]=t.cc;t.n.split(' ').forEach(w=>{if(w.length>3)TM[w.toLowerCase()]=t.cc;});}));
 const gCC=s=>{if(!s)return'';const k=s.toLowerCase();if(TM[k])return TM[k];const f=Object.keys(TM).find(k2=>k.includes(k2));return f?TM[f]:'';};
 
@@ -685,6 +697,7 @@ const save=()=>{try{localStorage.setItem('wc26v15',JSON.stringify(ST));}catch(e)
 const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);};
 
 // ── CALC ──
+function applyMatch(ts,hi,ai,hg,ag,tm2){ts[hi].mp++;ts[ai].mp++;ts[hi].gf+=hg;ts[hi].ga+=ag;ts[hi].gd+=hg-ag;ts[ai].gf+=ag;ts[ai].ga+=hg;ts[ai].gd+=ag-hg;if(hg>ag){ts[hi].w++;ts[hi].pts+=3;ts[ai].l++;if(tm2){tm2[ts[hi].n].push('W');tm2[ts[ai].n].push('L');}}else if(hg<ag){ts[ai].w++;ts[ai].pts+=3;ts[hi].l++;if(tm2){tm2[ts[hi].n].push('L');tm2[ts[ai].n].push('W');}}else{ts[hi].d++;ts[ai].d++;ts[hi].pts++;ts[ai].pts++;if(tm2){tm2[ts[hi].n].push('D');tm2[ts[ai].n].push('D');}}}
 function calcSt(gid){
   const grp=GROUPS.find(g=>g.id===gid);
   const ts=grp.teams.map(t=>({...t,mp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,form:[]}));
@@ -694,16 +707,47 @@ function calcSt(gid){
     if(sc&&sc.h!==''&&sc.a!==''&&sc.h!=null){
       const hi=grp.teams.findIndex(t=>t.n===m.h.n),ai=grp.teams.findIndex(t=>t.n===m.a.n);
       const hg=parseInt(sc.h)||0,ag=parseInt(sc.a)||0;
-      ts[hi].mp++;ts[hi].gf+=hg;ts[hi].ga+=ag;ts[hi].gd+=hg-ag;
-      ts[ai].mp++;ts[ai].gf+=ag;ts[ai].ga+=hg;ts[ai].gd+=ag-hg;
-      if(hg>ag){ts[hi].w++;ts[hi].pts+=3;ts[ai].l++;tm2[m.h.n].push('W');tm2[m.a.n].push('L');}
-      else if(hg<ag){ts[ai].w++;ts[ai].pts+=3;ts[hi].l++;tm2[m.h.n].push('L');tm2[m.a.n].push('W');}
-      else{ts[hi].d++;ts[hi].pts++;ts[ai].d++;ts[ai].pts++;tm2[m.h.n].push('D');tm2[m.a.n].push('D');}
+      applyMatch(ts,hi,ai,hg,ag,tm2);
     }
   });
   ts.forEach(t=>{t.form=tm2[t.n]||[];});
   return ts.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
 }
+function calcStFIFA(gid,extraMatches=[]){
+    const grp=GROUPS.find(g=>g.id===gid);
+    const ts=grp.teams.map(t=>({
+        ...t,
+        mp:0,w:0,d:0,l:0,
+        gf:0,ga:0,gd:0,
+        pts:0,
+        form:[]
+    }));
+    const tm2={};
+    grp.teams.forEach(t=>tm2[t.n]=[]);
+    gm(gid).forEach((m,i)=>{
+        const sc=ST.scores[`${gid}_${i}`];
+        if(sc&&sc.h!==''&&sc.a!==''&&sc.h!=null){
+            const hi=grp.teams.findIndex(t=>t.n===m.h.n);
+            const ai=grp.teams.findIndex(t=>t.n===m.a.n);
+            const hg=parseInt(sc.h)||0;
+            const ag=parseInt(sc.a)||0;
+            applyMatch(ts,hi,ai,hg,ag,tm2);
+        }
+    });
+    extraMatches.forEach(m=>{
+        const hi=grp.teams.findIndex(t=>t.n===m.h);
+        const ai=grp.teams.findIndex(t=>t.n===m.a);
+        applyMatch(ts,hi,ai,m.hg,m.ag,tm2);
+    });
+    ts.forEach(t=>t.form=tm2[t.n]||[]);
+    return sortFIFA(ts,gid);;
+}
+function sortFIFA(ts,gid){const ptsGroups={};ts.forEach(t=>{if(!ptsGroups[t.pts])ptsGroups[t.pts]=[];ptsGroups[t.pts].push(t);});const res=[];Object.keys(ptsGroups).sort((a,b)=>b-a).forEach(pts=>{const grp=ptsGroups[pts];if(grp.length===1){res.push(grp[0]);}else{const names=grp.map(t=>t.n);const h2h=headToHeadTable(gid,names);grp.sort((a,b)=>h2h[b.n].pts-h2h[a.n].pts||h2h[b.n].gd-h2h[a.n].gd||h2h[b.n].gf-h2h[a.n].gf||b.gd-a.gd||b.gf-a.gf);res.push(...grp);}});return res;}
+function testFIFA(gid){console.table(calcStFIFA(gid));}
+function allFinalTables(gid){const outcomes=generateRemainingOutcomes(gid),rem=getRemainingMatches(gid);return outcomes.map(outcome=>{const extraMatches=[];outcome.forEach((r,i)=>{const m=rem[i];if(r==='W'){extraMatches.push({h:m.h.n,a:m.a.n,hg:1,ag:0});}else if(r==='L'){extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:1});}else{extraMatches.push({h:m.h.n,a:m.a.n,hg:0,ag:0});}});return calcStFIFA(gid,extraMatches);});}
+function lockedPosition(gid,pos){const tables=allFinalTables(gid);if(!tables.length)return null;const first=tables[0][pos-1];const locked=tables.every(tb=>tb[pos-1].n===first.n);return locked?first:null;}
+function testLocked(gid){console.log('1st',lockedPosition(gid,1));console.log('2nd',lockedPosition(gid,2));}
+   
 const grpDone=gid=>MU.every((_,i)=>{const sc=ST.scores[`${gid}_${i}`];return sc&&sc.h!==''&&sc.a!=='';});
 const doneCount=()=>GROUPS.filter(g=>grpDone(g.id)).length;
 function getQual(){const auto=[],p3=[];GROUPS.forEach(g=>{const st=calcSt(g.id);if(grpDone(g.id)){auto.push({...st[0],pos:1,grp:g.id,grpColor:g.color});auto.push({...st[1],pos:2,grp:g.id,grpColor:g.color});}p3.push({...st[2],pos:3,grp:g.id,grpColor:g.color});});p3.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);return{auto,p3,best8:p3.slice(0,8)};}
@@ -939,7 +983,7 @@ function setAwardTab(tab){ST.awardTab=tab;save();renderAwards();}
 
 // ── KNOCKOUT ──
 const R32_MAP=[{home:'2A',away:'2B'},{home:'1E',away:'3ABCDF'},{home:'1F',away:'2C'},{home:'1C',away:'2F'},{home:'1I',away:'3CDFGH'},{home:'2E',away:'2I'},{home:'1A',away:'3CEFHI'},{home:'1L',away:'3EHIJK'},{home:'1D',away:'3BEFIJ'},{home:'1G',away:'3AEHIJ'},{home:'2K',away:'2L'},{home:'1H',away:'2J'},{home:'1B',away:'3EFGIJ'},{home:'1J',away:'2H'},{home:'1K',away:'3DEIJL'},{home:'2D',away:'2G'}];
-function getTeamByCode(code){if(code.startsWith('3')&&code.length>2)return{n:code,cc:''};const pos=parseInt(code[0]),grp=code[1];if(!grpDone(grp))return{n:code,cc:''};const st=calcSt(grp);if(pos===1)return{n:st[0].n,cc:st[0].cc};if(pos===2)return{n:st[1].n,cc:st[1].cc};if(pos===3)return{n:st[2].n,cc:st[2].cc};return{n:'',cc:''};}
+function getTeamByCode(code){if(code.startsWith('3')&&code.length>2)return{n:code,cc:''};const pos=parseInt(code[0]),grp=code[1];if(pos===3)return grpDone(grp)?{n:calcSt(grp)[2].n,cc:calcSt(grp)[2].cc}:{n:code,cc:''};const t=lockedPosition(grp,pos);if(t)return{n:t.n,cc:t.cc};return{n:code,cc:''};
 function renderQualPanel(){const{auto,p3,best8}=getQual();const done=doneCount(),pct=Math.round(done/12*100),total=auto.length+best8.length;let h=`<div class="qpanel"><div style="font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">🎯 Kualifikasi <span style="font-size:10px;color:#888;font-weight:400;">${done}/12 grup selesai</span></div><div class="qprog"><div class="qbar" style="width:${pct}%"></div></div>`;if(!total){h+=`<div style="font-size:11px;color:#888;">Isi skor di tab Pertandingan untuk mengisi bracket otomatis.</div>`;}else{h+=`<div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">✅ Juara & Runner-Up (${auto.length}/24)</div><div style="margin-bottom:8px;">`;GROUPS.forEach(g=>{if(!grpDone(g.id)){h+=`<span class="qchip pd">${g.id}?</span>`.repeat(2);}else{const st=calcSt(g.id);[0,1].forEach(i=>h+=`<span class="qchip">${fi(st[i].cc,'fi fi-xs')}<span>${st[i].n}</span><span class="qbadge" style="background:${g.color};color:#fff;">${g.id}${i===0?'①':'②'}</span></span>`); }});h+=`</div><div style="font-size:9px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;">🟢 Peringkat 3 (${best8.length}/8)</div><div>`;p3.forEach((t,i)=>{const l=i<8;h+=`<span class="qchip ${l?'p3c':''}">${fi(t.cc,'fi fi-xs')}<span>${t.n}</span><span class="qbadge" style="background:${l?'#34a853':'#eee'};color:${l?'#fff':'#888'};">${t.grp} ${t.pts}p</span></span>`;});h+=`</div>`;}const adv=Object.entries(ST.koN).filter(([k,v])=>v&&v.hn&&!k.startsWith('r32')).length;h+=`<div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;"><button class="btn-fill" onclick="doFill()">🔄 Isi/Perbarui dari Fase Grup</button>${total?`<span style="font-size:10px;color:#34a853;">✓ ${total} tim${adv?` · ${adv} advanced`:''}</span>`:''}</div><div style="font-size:10px;color:#888;margin-top:5px;">Pemenang otomatis naik ke babak berikutnya.</div></div>`;document.getElementById('qualPanel').innerHTML=h;}
 function doFill(){for(let i=0;i<16;i++){const k=`r32_${i}`,m=R32_MAP[i],t1=getTeamByCode(m.home),t2=getTeamByCode(m.away);ST.koN[k]={hn:t1.n,hcc:t1.cc,an:t2.n,acc:t2.cc,_auto:true};}propagateWinners();save();renderBracket();renderQualPanel();toast('✅ Bracket diperbarui!');}
 function brdMatch(rnd,idx){const k=`${rnd}_${idx}`,nm=ST.koN[k]||{},sc=ST.ko[k]||{},h=sc.h!==''?parseInt(sc.h):null,a=sc.a!==''?parseInt(sc.a):null,ph=sc.ph!==''?parseInt(sc.ph):null,pa=sc.pa!==''?parseInt(sc.pa):null,penDone=ph!==null&&pa!==null,hw=h!==null&&a!==null&&(h>a||(h===a&&penDone&&ph>pa)),aw=h!==null&&a!==null&&(a>h||(h===a&&penDone&&pa>ph));return`<div class="brd-m"><div class="brd-t ${hw?'win':''}">${nm.hn&&nm.hcc?fi(nm.hcc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni" value="${nm.hn||''}" placeholder="TBD" onchange="setKoN('${k}','hn',this.value)"><input class="brd-sc" type="number" value="${sc.h||''}" placeholder="-" onchange="setKoSc('${k}','h',this.value)">${h!==null&&a!==null&&h===a&&penDone?`<span style="font-size:9px;color:#888;">(${ph})</span>`:''}</div><div class="brd-t ${aw?'win':''}">${nm.an&&nm.acc?fi(nm.acc,'fi fi-xs'):`<span style="width:13px;height:9px;display:inline-block;flex-shrink:0;"></span>`}<input class="brd-ni" value="${nm.an||''}" placeholder="TBD" onchange="setKoN('${k}','an',this.value)"><input class="brd-sc" type="number" value="${sc.a||''}" placeholder="-" onchange="setKoSc('${k}','a',this.value)">${h!==null&&a!==null&&h===a&&penDone?`<span style="font-size:9px;color:#888;">(${pa})</span>`:''}</div></div>`;}
