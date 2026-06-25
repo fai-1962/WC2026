@@ -30,8 +30,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .podium-country{display:flex;flex-direction:column;align-items:center;gap:8px;}
 .podium-country-name{font-size:14px;font-weight:800;color:#1a1a2e;text-align:center;}
 .podium-box{width:120px;margin-top:24px;border-radius:0 0 8px 8px;color:#fff;font-weight:700;position:relative;display:flex;flex-direction:column;align-items:center;padding:16px 10px 18px;box-shadow:0 6px 14px rgba(0,0,0,.18);}
-.podium-box::before{content:'';position:absolute;top:-12px;left:0;width:100%;height:13px;clip-path:polygon(0 100%,100% 100%,92% 0,8% 0);}
-.podium-box::after{content:'';position:absolute;top:0;right:-7px;width:7px;height:100%;background:linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.32));clip-path:polygon(0 0,100% 8px,100% calc(100% - 8px),0 100%);}
+.podium-box::before{content:'';position:absolute;top:-11px;left:0;width:108%;height:11px;clip-path:polygon(0 100%,calc(100% - 9px) 100%, 100% 0, 15px 0);}
+.podium-box::after{content:'';position:absolute;top:-11px;right:-10px;width:10px;height:107%;background:linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.32));clip-path:polygon(0 11px, calc(100% - 0px) 0, 100% calc(100% - 20px), 0 98%);}
 .podium-1{height:172px;justify-content:flex-start;background:linear-gradient(180deg,#ffe082 0%,#ffd54f 25%,#fbc02d 75%,#f9a825 100%);}
 .podium-1::before{background:#fff3c4;}
 .podium-2{height:140px;justify-content:flex-start;background:linear-gradient(180deg,#f5f5f5,#dcdcdc 40%,#bdbdbd 100%);}
@@ -42,7 +42,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .podium-4::before{background:#9bd0ff;}
 .podium-number{font-size:34px;font-weight:900;color:rgba(255,255,255,.9);line-height:1;margin-bottom:6px;text-shadow:0 2px 4px rgba(0,0,0,.15);}
 .podium-icon{font-size:30px;line-height:1;margin-bottom:auto;}
-.podium-label{font-size:12px;font-weight:700;opacity:.95;margin-top:6px;text-align:center;}
+.podium-label{font-size:12px;font-weight:700;opacity:.95;margin-top:0px;text-align:center;}
 .podium-stars{font-size:10px;letter-spacing:2px;margin-top:4px;opacity:.9;}
 .award-info-box{display:flex;align-items:center;gap:8px;background:#eef4ff;border:1px solid #d3e3ff;border-radius:10px;padding:10px 14px;margin-top:18px;font-size:11px;color:#3a5a8c;width:100%;}
 .award-info-box .icon{flex-shrink:0;font-size:14px;}
