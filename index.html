@@ -514,7 +514,14 @@ const KO_SCHED={
   third_0:[`Ming 19 Jul`,`04.00`,`Miami Stadium`],
   final_0:[`Sen 20 Jul`,`02.00`,`NJ Stadium`],
 };
-
+const KO_DISPLAY_ORDER = {
+  r32:[2,8,0,3,9,1,10,11,7,6,5,4,14,13,12,15],
+  r16:[1,0,4,5,2,3,6,7],
+  qf:[0,1,2,3],
+  sf:[0,1],
+  third:[0],
+  final:[0]
+};
 
 const GROUPS=[
   {id:'A',color:'#1a73e8',teams:[{n:'Meksiko',cc:'mx'},{n:'Afrika Selatan',cc:'za'},{n:'Korea Selatan',cc:'kr'},{n:'Rep. Ceko',cc:'cz'}]},
@@ -816,7 +823,8 @@ function renderKOMatches(){
       <span style="font-size:11px;font-weight:700;color:#fff;background:${rnd.color};padding:3px 12px;border-radius:999px;white-space:nowrap;">${rnd.label}</span>
       <div style="flex:1;height:1px;background:#e0e0e0;"></div>
     </div>`;
-    for(let i=0;i<rnd.count;i++){
+    const order = KO_DISPLAY_ORDER[rnd.id] || [...Array(rnd.count).keys()];
+   for(const i of order){
       const k=`${rnd.id}_${i}`;
       const m=getMatchInfo(rnd.id,i);
       const sc=getMatchScore(rnd.id,i);
